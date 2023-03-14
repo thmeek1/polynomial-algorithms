@@ -3,6 +3,7 @@
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{enumitem}
+\usepackage{pdfpages}
 
 % \usepackage[backend=biber]{biblatex}
 % \addbibresource{bibliography.bib}
@@ -180,26 +181,33 @@ This leads us to a discussion of \textit{monomial orderings}. There are uncounta
     \item If $x^\alpha > x^\beta$ and $\gamma \in \bZ_{\ge0}^n$, then $x^\alpha x^\gamma > x^\beta x^\gamma$. 
     \item $>$ is a well-ordering. 
   \end{enumerate}
-  It turns out that the third condition above is equivalent to two other statements that are easier to work with. 
-  \begin{theorem}
-    Let $X$ be a commutative free monoid and suppose the first two conditions in the definition above are satisfied. The the following are equivalent: 
-    \begin{enumerate}
-      \item $>$ is a well-ordering on $X$. 
-      \item Every strictly decreasing sequence in $X$ eventually terminates. 
-      % \[ x^{\alpha(1)} > x^{\alpha(2)} > x^{\alpha(3)} > \dots \]
-      \item $x^\alpha>0$ for all $\alpha \in \bZ_{\ge0}^n$. 
-    \end{enumerate}
-  \end{theorem}
-  For a proof of this theorem, see Cox, Little and O'Shea\cite{Cox2015}. This allows us to show that certain algorithms terminate by showing that some term strictly decreases at each step of the algorithm. \par 
-  There are many monomial orderings that are used frequently in research, however we will limit our attention to three specific examples. The first such example is perhaps the most intuitive. 
-  \begin{definition}[\bf Lexicographic Order]
-    Let $\alpha = (\alpha_1, \dots, \alpha_n)$ and $\beta = (\beta_1,\dots,\beta_n)$ be in $\bZ_{\ge0}^n$. Then under the Lexicographical ordering, $x^\alpha > x^\beta$ if the leftmost nonzero entry of the vector difference $\alpha - \beta \in \bZ^n$ is positive. 
-  \end{definition}
 \end{definition}
-
+It turns out that the third condition above is equivalent to two other statements that are easier to work with. 
+\begin{theorem}
+  Let $X$ be a commutative free monoid and suppose the first two conditions in the definition above are satisfied. The the following are equivalent: 
+  \begin{enumerate}
+    \item $>$ is a well-ordering on $X$. 
+    \item Every strictly decreasing sequence in $X$ eventually terminates. 
+    \item $x^\alpha>0$ for all $\alpha \in \bZ_{\ge0}^n$. 
+  \end{enumerate}
+\end{theorem}
+For a proof of this theorem, see Cox, Little and O'Shea\cite{Cox2015}. This allows us to show that certain algorithms terminate by showing that some term strictly decreases at each step of the algorithm. \par 
+There are many monomial orderings that are used frequently in research, however we will limit our attention to three specific examples. The first such example is perhaps the most intuitive. 
+\begin{definition}[\bf Lexicographic Order]
+  Let $\alpha = (\alpha_1, \dots, \alpha_n)$ and $\beta = (\beta_1,\dots,\beta_n)$ be in $\bZ_{\ge0}^n$. We say $x^\alpha >_{Lex} x^\beta$ if the leftmost nonzero entry of the vector difference $\alpha - \beta \in \bZ^n$ is positive. 
+\end{definition}
+The Lexicographic order is the order used in a dictionary. We begin with an ordering of the variables. The greater monomial is the one with the larger exponent in the first variable. If those exponents are the same, we instead calculate the Lexicographic order without the highest variable. In our previous example, $g = xy^2z^3 + x^5 + x^3y^2z$, we see that the lead term under the Lexicographic order where $x>y>z$ is $\LT(g)=x^5$. By convention, when denoting variables with subscripts, we take $x_1 > x_2 > x_3 > \dots$. Our next monomial ordering is built out of the Lexicographic order. 
+\begin{definition}[\bf Graded Lex Order]
+  Let $\alpha,\beta \in \bZ_{\ge0}^n$. We say $x^\alpha >_{GLex} x^\beta$ if $|\alpha| > |\beta|$ or $|\alpha|=|\beta|$ and $x^\alpha >_{Lex} x^\beta$. 
+\end{definition}
+This means that the Graded Lex order first orders by total degree, but breaks ties with the Lexicographic order. Our third and final monomial ordering is less intuitive than the previous two.
+\begin{definition}[\bf Graded Reverse Lex Order]
+  Let $\alpha,\beta \in \bZ_{\ge0}^n$. We say $x^\alpha >_{GRevLex} x^\beta$ if $|\alpha| > |\beta|$ or $|\alpha|=|\beta|$ and the rightmost nonzero entry of $\alpha - \beta \in \bZ^n$ is negative. 
+\end{definition}
+Here, we are still ordering first by total degree, but we break ties in a manner that is in some way the reverse of Lexicographic order. As unintuitive as the Graded Reverse Lex order may seem, it turns out that this ordering is often the most efficient in many algorithms, including some we will explore here. 
 
 \subsection{Ideals}
-When $R$ is a commutative ring, a subring $I$ (not necessarily with identity) is an ideal if $ra \in I$ for all $r \in R$ and $a \in I$. 
+% When $R$ is a commutative ring, a subring $I$ (not necessarily with identity) is an ideal if $ra \in I$ for all $r \in R$ and $a \in I$. 
 
 \lipsum[3-10]
 
@@ -244,5 +252,6 @@ When $R$ is a commutative ring, a subring $I$ (not necessarily with identity) is
 \bibliography{references}
 
 \addcontentsline{toc}{chapter}{Curriculum Vitae}
+\includepdf[pages=-]{CV.pdf}
 
 \end{document}
