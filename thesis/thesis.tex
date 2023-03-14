@@ -80,6 +80,7 @@
 \newcommand{\LT}{\ensuremath{\text{\sc lt}}}
 \newcommand{\LM}{\ensuremath{\text{\sc lm}}}
 \newcommand{\LC}{\ensuremath{\text{\sc lc}}}
+\DeclareMathOperator{\multideg}{multideg}
 \def\and{\text{ and }}
 
 \newtheorem{theorem}{Theorem}
@@ -168,7 +169,7 @@ When $\alpha=(0,\dots,0)$, note that $x^\alpha=1$. We also let $|\alpha| = \alph
     \item The \textbf{total degree} of $f \ne 0$, denoted $\deg(f)$, is the maximum $|\alpha|$ such that the coefficient $a_\alpha$ is nonzero. The total degree of the zero polynomial is undefined.
   \end{enumerate}
 \end{definition}
-An important question that often arises when working with polynomials in more than one variable is how to define the leading term. Given a nonzero polynomial $f \in k[x]$, let
+One observation is that the set $k[x_1,\dots,x_n]$ forms a ring under the standard polynomial addition and multiplication operations. In the case where $n=1$, the ring $k[x]$ contains the familiar polynomials in a single variable. An important question that often arises when working with polynomials in more than one variable is how to define the leading term. Given a nonzero polynomial $f \in k[x]$, let
 \[ f = c_0x^m + c_1x^{m-1} + \dots + c_m, \]
 where $c_i \in k$ and $c_0 \ne 0$ (thus $\deg(f)=m$). Then we say that $c_0x^m$ is the \textbf{leading term} of $f$ and write $\LT(f)=c_0x^m$. The leading term of a polynomial is a surprisingly essential characteristic. For example, when executing single variable polynomial long division, the first step is to make sure the polynomial is expressed with its leading term first, and at each subsequent step, that must remain the case; but what about when there are multiple variables? Given the polynomial $g \in k[x,y,z]$ defined as 
 \[ g = xy^2z^3 + x^5 + x^3y^2z, \]
@@ -192,24 +193,49 @@ It turns out that the third condition above is equivalent to two other statement
   \end{enumerate}
 \end{theorem}
 For a proof of this theorem, see Cox, Little and O'Shea\cite{Cox2015}. This allows us to show that certain algorithms terminate by showing that some term strictly decreases at each step of the algorithm. \par 
+Now that we have a well-defined way to order monomials, we are ready to define a few more terms.
+\begin{definition}
+  Let $f = \sum_\alpha a_\alpha x^\alpha$ be a nonzero polynomial in $k[x_1,\dots,x_n]$ and let $>$ be a monomial order.
+  \begin{enumerate}[label=(\roman*)]
+    \item The \textbf{multidegree} of $f$ is 
+    \[ \multideg(f) = \max(\alpha \in \bZ_{\ge0}^n \mid a_\alpha \ne 0) \]
+    (the maximum is taken with respect to $>$).
+    \item The \textbf{leading coefficient} of $f$ is
+    \[ \LC(f) = a_{\multideg(f)} \in k. \]
+    \item The \textbf{leading monomial} of $f$ is
+    \[ \LM(f) = x^{\multideg(f)}. \]
+    \item The \textbf{leading term} of $f$ is
+    \[ \LT(f) = \LC(f) \cdot \LM(f). \]
+  \end{enumerate}
+\end{definition}
 There are many monomial orderings that are used frequently in research, however we will limit our attention to three specific examples. The first such example is perhaps the most intuitive. 
 \begin{definition}[\bf Lexicographic Order]
   Let $\alpha = (\alpha_1, \dots, \alpha_n)$ and $\beta = (\beta_1,\dots,\beta_n)$ be in $\bZ_{\ge0}^n$. We say $x^\alpha >_{Lex} x^\beta$ if the leftmost nonzero entry of the vector difference $\alpha - \beta \in \bZ^n$ is positive. 
 \end{definition}
-The Lexicographic order is the order used in a dictionary. We begin with an ordering of the variables. The greater monomial is the one with the larger exponent in the first variable. If those exponents are the same, we instead calculate the Lexicographic order without the highest variable. In our previous example, $g = xy^2z^3 + x^5 + x^3y^2z$, we see that the lead term under the Lexicographic order where $x>y>z$ is $\LT(g)=x^5$. By convention, when denoting variables with subscripts, we take $x_1 > x_2 > x_3 > \dots$. Our next monomial ordering is built out of the Lexicographic order. 
+The Lexicographic order is the order used in a dictionary. We begin with an ordering of the variables. The greater monomial is the one with the larger exponent in the first variable. If those exponents are the same, we instead calculate the Lexicographic order without the highest variable. In our previous example, $g = xy^2z^3 + x^5 + x^3y^2z$, we see that the lead term under the Lexicographic order where $x>y>z$ is $\LT(g)=x^5$. By convention, when denoting variables with subscripts, we take $x_1 > x_2 > x_3 > \dots$. \par 
+Our next monomial ordering is built out of the Lexicographic order. 
 \begin{definition}[\bf Graded Lex Order]
   Let $\alpha,\beta \in \bZ_{\ge0}^n$. We say $x^\alpha >_{GLex} x^\beta$ if $|\alpha| > |\beta|$ or $|\alpha|=|\beta|$ and $x^\alpha >_{Lex} x^\beta$. 
 \end{definition}
-This means that the Graded Lex order first orders by total degree, but breaks ties with the Lexicographic order. Our third and final monomial ordering is less intuitive than the previous two.
+This means that the Graded Lex order first orders by total degree, but breaks ties with the Lexicographic order. In our running example using the Graded Lex order, we see that $\LT(g)=x^3y^2z$. \par 
+Our third and final monomial ordering is less intuitive than the previous two.
 \begin{definition}[\bf Graded Reverse Lex Order]
   Let $\alpha,\beta \in \bZ_{\ge0}^n$. We say $x^\alpha >_{GRevLex} x^\beta$ if $|\alpha| > |\beta|$ or $|\alpha|=|\beta|$ and the rightmost nonzero entry of $\alpha - \beta \in \bZ^n$ is negative. 
 \end{definition}
-Here, we are still ordering first by total degree, but we break ties in a manner that is in some way the reverse of Lexicographic order. As unintuitive as the Graded Reverse Lex order may seem, it turns out that this ordering is often the most efficient in many algorithms, including some we will explore here. 
+Here, we are still ordering first by total degree, but we break ties in a manner that is in a way the reverse of Lexicographic order. Using the Graded Reverse Lex order, the lead term of $g$ is $xy^2z^3$. As unintuitive as the Graded Reverse Lex order may seem, it turns out that this ordering is often the most efficient in many algorithms, including some we will explore here. 
 
 \subsection{Ideals}
-% When $R$ is a commutative ring, a subring $I$ (not necessarily with identity) is an ideal if $ra \in I$ for all $r \in R$ and $a \in I$. 
-
-\lipsum[3-10]
+In general, when $R$ is a commutative ring, a subring $I$ (not necessarily with identity) is an ideal if $ra \in I$ for all $r \in R$ and $a \in I$. For the polynomial ring $k[x_1,\dots,x_n]$ this means that an ideal is a nonempty subset closed under subtraction which absorbs polynomials by multiplication. For example, let $S \sbs k[x]$ be the set of polynomials with no constant or linear terms, so that $0 \in S$ and for any nonzero $f \in S$, the lowest degree term of $f$ has degree at least two. Then $S$ is easily seen to be an ideal of $k[x]$. In fact, $S$ is what is known as a \textit{principle ideal} because $S$ is \textit{generated} by a single polynomial, namely the polynomial $x^2$. This means that any polynomial in $S$ may be formed by multiplying $x^2$ by some polynomial in $k[x]$. More generally, an ideal $I \in k[x_1,\dots,x_n]$ is said to be generated by a set $B$ of polynomials if every $f \in I$ may be expressed as $f = b_1f_1 + \dots + b_tf_t$ for some $b_1,\dots,b_t \in B$ and some $f_1,\dots,f_t \in k[x_1,\dots,x_n]$. In this case, we write $I = \langle B \rangle$. In our example above, we would write $S = \langle x^2 \rangle$. It turns out that \textit{every} ideal in $k[x]$ is generated by a single polynomial, making this ring quite important in algebra and number theory. When dealing with multiple variables, we have no such luck. There is no single polynomial that generates the ideal $\langle x,y \rangle \in k[x,y,z]$. However, it is true that every polynomial ideal is generated by \textit{some} set since an ideal will generate itself. What is more impressive and not quite as obvious is the fact that every polynomial ideal is generated by some \textit{finite} set. This result was first proved by David Hilbert in 1890 and is known as \textit{Hilbert's Basis Theorem}\cite{Hilbert90}. \par 
+Combining our notion of the leading term of a polynomial with ideals in a polynomial ring leads us to the following definition.
+\begin{definition}
+  Let $I \sbs k[x_1,\dots,x_n]$ be an ideal other than $\{0\}$, and fix a monomial ordering on $k[x_1,\dots,x_n]$. Then: 
+  \begin{enumerate}[label=(\roman*)]
+    \item We denote by $\LT(I)$ the set of leading terms of nonzero elements of $I$. Thus,
+    \[ \LT(I) = \{ cx^\alpha \mid \text{ there exists } f \in I \setminus \{0\} \text{ with } \LT(f) = cx^\alpha \}. \]
+    \item We denote by $\langle \LT(I) \rangle$ the ideal generated by the elements of $\LT(I)$. 
+  \end{enumerate}
+\end{definition}
+If $I \sbs k[x_1,\dots,x_n]$ is an ideal then by Hilbert's Basis Theorem, there is some finite set of polynomials $\{ b_1,\dots,b_t \} \sbs k[x_1,\dots,x_n]$ such that $I = \langle b_1,\dots,b_t \rangle$. Since $b_1,\dots,b_t \in I$, it is clear that $\langle \LT(b_1), \dots, \LT(b_t) \rangle \sbs \langle \LT(I) \rangle$. However, this containment may or may not be proper. Only in a very special case do we achieve equality of these two sets.
 
 \subsection{Gr\"obner bases}
 % Central to this discussion is the notion of a \emph{Gr\"obner basis}. Given an ideal of a polynomial ring, a Gr\"obner basis is a special set of polynomials which, when used as divisors in the division algorithm, give a unique remainder for any dividend in the ideal. \par 
