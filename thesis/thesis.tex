@@ -91,6 +91,7 @@
 % \DeclareMathOperator{\range}{range}
 % \DeclareMathOperator{\SL}{SL}
 \DeclareMathOperator{\Span}{span}
+\DeclareMathOperator{\lcm}{lcm}
 \newcommand{\LT}{\ensuremath{\text{\sc lt}}}
 \newcommand{\LM}{\ensuremath{\text{\sc lm}}}
 \newcommand{\LC}{\ensuremath{\text{\sc lc}}}
@@ -133,7 +134,7 @@
 
 \abstract
 
-This paper explores the \lstinline{polynomial-algorithms} package which is a computer algebra system written in Haskell using the functional programming paradigm. This package implements a Polynomial type for use in several algorithms including a recursive version of Buchberger's algorithm for finding a reduced Gr\"obner basis for a polynomial ideal. We will contrast this package with imperative approaches using more traditional languages. 
+The \lstinline{polynomial-algorithms} package is a computer algebra system written in Haskell. This package implements a Polynomial type for use in several algorithms including a recursive version of Buchberger's algorithm for finding the reduced Gr\"obner basis of a polynomial ideal. As it is written in Haskell, the \lstinline{polynomial-algorithms} package naturally uses a purely functional design philosophy. We will contrast this with imperative approaches using more traditional languages. 
 
 \chapters
 
@@ -252,11 +253,39 @@ Combining our notion of the leading term of a polynomial with ideals in a polyno
 If $I \sbs k[x_1,\dots,x_n]$ is an ideal then by Hilbert's Basis Theorem, there is some finite set of polynomials $\{ b_1,\dots,b_t \} \sbs k[x_1,\dots,x_n]$ such that $I = \langle b_1,\dots,b_t \rangle$. Since $b_1,\dots,b_t \in I$, it is clear that $\langle \LT(b_1), \dots, \LT(b_t) \rangle \sbs \langle \LT(I) \rangle$. However, this containment may be proper. Only in a very special case do we achieve equality of these two sets.
 
 \subsection{Gr\"obner bases}
-% Central to this discussion is the notion of a \emph{Gr\"obner basis}. Given an ideal of a polynomial ring, a Gr\"obner basis is a special set of polynomials which, when used as divisors in the division algorithm, give a unique remainder for any dividend in the ideal. \par 
-\lipsum[2-15]
+We mentioned polynomial long division before when making the case for why a monomial ordering is necessary. Another challenge when working with multiple variables is that, even when we have the requisite ordering to preform long division, the quotient and remainder may depend on the order of the dividends. When dividing $f$ by the ordered list $(g_1,g_2,g_3)$, we may get a different result from when dividing $f$ by the ordered list $(g_2,g_3,g_1)$. While the quotient is unfortunately doomed to this fate, there is a way we may guarantee the uniqueness of at least the remainder. It turns out this uniqueness is crucial for many of the theorems and algorithms that mathematicians rely on. \par 
+\begin{definition}
+  Fix a monomial order on the polynomial ring $k[x_1,\dots,x_n]$. A finite subset $G = \{ g_1,\dots,g_t \}$ of an ideal $I \sbs k[x_1,\dots,x_n]$ different from $\{0\}$ is said to be a \emph{Gr\"obner basis} if
+  \[ \langle \LT(g_1), \dots, \LT(g_t) \rangle = \langle \LT(I) \rangle. \]
+  Using the convention that $\langle \emptyset \rangle = {0}$, we define the empty set $\emptyset$ to be the Gr\"obner basis of the zero ideal $\{0\}$.
+\end{definition}
+Another way to state this definition is that the set $G = \{ g_1,\dots,g_t \}$ is a Gr\"obner basis for $I$ if the leading term of any element of $I$ is divisible by one of the $\LT(g_i)$. As one would expect, a Gr\"obner basis is indeed a basis for the ideal $I$ in the definition above and it can be shown that every ideal has a Gr\"obner basis. This is lucky because much of modern polynomial theory and algebraic geometry depends on the existence of such a basis. This is partly because the Gr\"obner basis is the set we needed to guarantee uniqueness of the remainder in the division algorithm. \par 
+Another feature of Gr\"obner bases is a solution to the so called \emph{ideal membership problem}. For a proof of the following theorem, see \cite{Cox2015}.
+\begin{theorem}
+  Let $G = \{ g_1,\dots,g_t \}$ be a Gr\"obner basis for an ideal $I \sbs k[x_1,\dots,x_n]$ and let $f \in k[x_1,\dots,x_n]$. Then $f \in I$ if and only if the remainder on division of $f$ by $G$ is zero. 
+\end{theorem}
+The remainder is sometimes called the \emph{normal form} of $f$. We will use the following notation for the remainder.
+\begin{definition}
+  We will write $\overline f^{F}$ for the remainder on division of $f$ by the ordered $s$-tuple $F = (f_1,\dots,f_s)$. If $F$ is a Gr\"obner basis for $\langle f_1,\dots,f_s \rangle$, then we can regard $F$ as a set  (without any particular order). 
+\end{definition}
+One application of the division algorithm is Buchberger's algorithm for finding a Gr\"obner basis for the ideal $\langle f_1,\dots,f_t \rangle$. The idea behind this algorithm is to start with a list $(f_1,\dots,f_t)$, determine all polynomials in $\langle f_1,\dots,f_t \rangle$ that may have a lead term that isn't divisible by any of the $\LT(f_i)$, and add to the list the ones that aren't. To find a polynomial with lead term that isn't divisible by any of the $\LT(f_i)$, we need to construct a polynomial in our ideal that has a potentially different lead term from the generators. We do this by calculating \emph{$S$-polynomials}. The way we check if the $S$-polynomial is in our ideal already is via the division algorithm. 
+\begin{definition}
+  Let $f,g \in k[x_1,\dots,x_n]$ be nonzero polynomials. 
+  \begin{itemize}
+    \item If $\multideg(f) = \alpha$ and $\multideg(g) = \beta$, then let $\gamma  =(\gamma_1,\dots,\gamma_n)$, where $\gamma_i = \max(\alpha_i,\beta_i)$ for each $i$. We call $x^\gamma$ the \emph{least common multiple} of $\LM(f)$ and $\LM(g)$, written $x^\gamma = \lcm(\LM(f),\LM(g))$. 
+    \item The \emph{$S$-polynomial} of $f$ and $g$ is the combination 
+    \[ S(f,g) = \frac{x^\gamma}{\LT(f)} \cdot f - \frac{x^\gamma}{\LT(g)} \cdot g. \]
+  \end{itemize}
+  (Note that we are inverting the leading coefficients here as well.)
+\end{definition}
+This definition leads to a crucial result in the theory of Gr\"obner bases.
+\begin{theorem}[Buchberger's Criterion]
+  Let $I$ be a polynomial ideal. Then a basis $G = \{g_1,\dots,g_t\}$ of $I$ is a Gr\"obner basis of $I$ if and only if for all pairs $i \ne j$, the remainder on division of $S(g_i,g_j)$ by $G$ (listed in some order) is zero.
+\end{theorem}
+Gr\"obner bases for ideals in polynomial rings were introduced by Bruno Buchberger in his PhD thesis\cite{Buchberger65} and named by him in honor of Wolfgang Gr\"obner, Buchberger's thesis adviser. This construction sharply influenced the direction of computational algebra for the next half a century. It is then no surprise that finding a Gr\"obner basis for a polynomial ideal in the most efficient way is a task of central importance in the field. Bruno Buchberger also developed the eponymous Buchberger's algorithm and since then, many tweaks and improvements have been made, but the basic logic of the algorithm remains largely unchanged. 
 
 \section{Categories}
-\lipsum[16-25]
+% \lipsum[2-10]
 
 \chapter{Functional Programming}
 Among the key features of a language like Haskell is the guarantee of functional purity. A function in Haskell does exactly one thing. It returns a value. That's it. It cannot alter the state of the program. It cannot cause anything to happen other than returning that value. This makes a Haskell program far more predictable than any program written outside of a purely functional paradigm. This is particularly useful when writing multithreaded code. The inability for a thread to alter any resource that another thread is using simplifies the task tremendously. \par 
@@ -300,7 +329,7 @@ Functional programming is not without its challenges. Since every expression is 
 \begin{lstlisting}[language=C]
 int collatz(int n) {
     while (n != 1) {
-        if (isEven n) {
+        if (n % 2 == 0) {
             n = n / 2;
         } else {
             n = 3 * n + 1;
@@ -320,28 +349,28 @@ collatz n
 In many cases, a recursive solution is cleaner and more readable than a loop, but even the most ardent Haskeller will admit that at times, this \emph{feature} is a limitation. One challenge that arises is translating existing algorithms, which often use loops and other imperative mechanisms, into functional ones. For an example of this, see Chapter 4 of this document. 
 
 \section{Types}
-\lipsum[36-45]
+% \lipsum[36-45]
 
 \section{Kinds}
-\lipsum[46-55]
+% \lipsum[46-55]
 
 \section{The Polynomial Type}
-\lipsum[56-65]
+% \lipsum[56-65]
 
 \chapter{Algorithms}
-\lipsum[66-75]
+% \lipsum[66-75]
 
 \section{The Division Algorithm}
-\lipsum[76-85]
+% \lipsum[76-85]
 
 \section{Buchberger's Algorithm}
-\lipsum[86-95]
+% \lipsum[86-95]
 
 \section{Efficiency}
-\lipsum[96-105]
+% \lipsum[96-105]
 
 \chapter{Conclusion}
-\lipsum[106-115]
+% \lipsum[106-110]
 
 \bibliographystyle{amsplain}
 \bibliography{references}
