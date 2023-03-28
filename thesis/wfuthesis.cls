@@ -519,9 +519,19 @@
 
 % ACKNOWLEDGEMENTS
 %
-%
-\newcommand{\acknowledgements}{\pchapter{Acknowledgements}}
-\newcommand{\acknowledgments}{\pchapter{Acknowledgments}}
+% The original version of this command erroneously added it to the table of contents.
+\newcommand{\acknowledgments}{
+	\chapter*{Acknowledgments}
+	\thispagestyle{headings}
+	\typeout{Acknowledgments}
+}
+\newcommand{\acknowledgements}{
+	\chapter*{Acknowledgements}
+	\thispagestyle{headings}
+	\typeout{Acknowledgements}
+}
+%\newcommand{\acknowledgments}{\pchapter{Acknowledgments}}
+%\newcommand{\acknowledgements}{\pchapter{Acknowledgements}}
 
 % CHAPTERS
 %

@@ -41,8 +41,8 @@ longDiv f gs = lastTwo $ outerLoop gs (f, replicate (length gs) 0, 0)
 -- | Returns the remainder of the first argument upon division by the second.
 reduce :: (Ord (Mon n o), Fractional (Coef r), Arity n)
           => Poly r n o -> [Poly r n o] -> Poly r n o
-reduce f gs = snd $ outerLoop gs (f, 0)
-    where outerLoop _ (0, r) = (0, r)
+reduce f gs = outerLoop gs (f, 0)
+    where outerLoop _ (0, r) = r
           outerLoop gs (p, r) = outerLoop gs $ innerLoop gs (p,r)
           innerLoop [] (p,r) = (P.dropLeadTerm p, rUpdate p r)
           innerLoop gs (p,r) = if (head gs) `P.leadTermDivs` p

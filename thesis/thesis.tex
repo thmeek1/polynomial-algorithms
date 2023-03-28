@@ -15,7 +15,7 @@
 % \usepackage{multicol}
 % \usepackage{tikz}
 % \usetikzlibrary{matrix,arrows}
-% \usepackage[all]{xy}
+\usepackage[all]{xy}
 % \usepackage{tikz-cd}
 % \tikzcdset{every arrow/.append style = -{Latex[width=4pt,length=10pt]}}
 \usepackage[defaultmono]{droidsansmono}
@@ -52,7 +52,11 @@
 % \def\bA{\mathbb{A}}
 % \def\cB{\mathcal{B}}
 \def\bC{\mathbb{C}}
+\def\sC{\mathsf{C}}
+\def\sD{\mathsf{D}}
 \def\bF{\mathbb{F}}
+\def\cF{\mathcal{F}}
+\def\cG{\mathcal{G}}
 % \def\bH{\mathbb{H}}
 % \def\bI{\mathbb{I}}
 % \def\cL{\mathcal{L}}
@@ -61,7 +65,7 @@
 \def\cP{\mathcal{P}}
 \def\bQ{\mathbb{Q}}
 \def\bR{\mathbb{R}}
-% \def\cT{\mathcal{T}}
+\def\cT{\mathcal{T}}
 % \def\cU{\mathcal{U}}
 % \def\bV{\mathbb{V}}
 \def\bZ{\mathbb{Z}}
@@ -83,7 +87,7 @@
 % \DeclareMathOperator{\Dim}{Dim}
 % \DeclareMathOperator{\ev}{ev}
 % \DeclareMathOperator{\GL}{GL}
-% \DeclareMathOperator{\Hom}{Hom}
+\DeclareMathOperator{\Hom}{Hom}
 \DeclareMathOperator{\id}{id}
 \DeclareMathOperator{\im}{im}
 % \DeclareMathOperator{\Mat}{Mat}
@@ -109,7 +113,7 @@
 
 % \def\e{\epsilon}
 % \def\d{\delta}
-% \def\p{\varphi}
+\def\p{\varphi}
 
 \begin{document}
 \title{A Functional Computer Algebra System for Polynomials}
@@ -120,13 +124,13 @@
 \chairperson{Ellen Kirkman, Ph.D.}
 \member{William Turkett, Ph.D.}
 
-\date{April, 2023}
+\date{May, 2023}
 
 \maketitle
 
 \clearpage
 
-\acknowledgements 
+\acknowledgments 
 
 \lipsum[1]
 
@@ -140,17 +144,17 @@ The \lstinline{polynomial-algorithms} package is a computer algebra system writt
 
 \chapter{Introduction}
 The theory of polynomials is a well-studied field of mathematics, rich with results which provide tools for mathematicians in various areas. Polynomial functions are among the simplest continuous functions to work with analytically or algebraically. Computationally, they are unquestionably the most important class of functions. It is then imperative to have a robust collection of software that can assist the mathematicians who study them. Many tools currently exist for this purpose, from dedicated high-level languages like Macaulay2 and Singular to libraries for general purpose languages like SageMath and SimPy. These software collections are referred to as \textit{computer algebra systems} or CAS's and while most have capabilities beyond polynomial manipulation, it is this feature that is the focus here. \par 
-The implementation of these tools varies greatly. The Macaulay2 engine is written in C++\cite{M2} while SageMath is built with Python\cite{sagemath}, which in turn often calls C. Their respective interfaces often use a mixture of procedural, object-oriented, functional, and declarative design. This certainly makes sense in the case of SageMath as Python itself hybridizes these approaches. If a CAS is a package for a general purpose language like Python, it should obey the design principles of that language. For dedicated CAS's like Macaulay2 though, this design choice bears consideration. There is a tendency in modern languages to incorporate features which favor a variety of paradigms. The popularity of hybrid languages like Python and JavaScript has encouraged most newer languages like Rust and Go to follow in their footsteps. There are good reasons for this, however there are also benefits to sticking to a single paradigm. \par 
-It is true that these paradigms are more a philosophical way of approaching software design than a well-defined feature of a language and given that, no language can be said to be strictly single paradigm. It is clear however that certain languages lend themselves to being more compatible with one paradigm than others. For example, Java is generally seen as a paragon of object-oriented programming. Every module contains exactly one class (with potentially many subclasses). Even the drivers are classes and must be instantiated before any program can be executed. One can use Java in a functional way, but doing so defeats the purpose of using Java. This is in contrast to a language like Python where it is difficult to escape the use of objects and classes, but higher order functions like folds and maps are used frequently, as are list comprehensions and other hallmarks of functional programming. At the same time, most programmers' first experience with Python is in writing plain procedural scripts. The freedom offered by such a language enables one to chose the most appropriate approach to the current task, but in doing so, it takes away the cohesiveness and predictability of a more \textit{pure} language like Java. \par 
-Similarly to the way Java is considered a paragon of the object-oriented school, Haskell is often one of the first two languages people think of when one mentions functional programming, with the other of course being Lisp. The functional style offers many advantages over a procedural or object-oriented approach as evidenced in how much modern languages have borrowed from Haskell. Rust's type system strongly resembles that of Haskell\cite{poss2014} and modern JavaScript libraries like React  leverage functional programming more than any other paradigm. \par 
+The implementation of these tools varies greatly. The Macaulay2 engine is written in C++\cite{M2} while SageMath is built with Python\cite{SageMath}, which in turn often calls C. Their respective interfaces often use a mixture of procedural, object-oriented, functional, and declarative design. This certainly makes sense in the case of SageMath as Python itself hybridizes these approaches. If a CAS is a package for a general purpose language like Python, it should obey the design principles of that language. For dedicated CAS's like Macaulay2 though, this design choice bears consideration. There is a tendency in modern languages to incorporate features which favor a variety of paradigms. The popularity of hybrid languages like Python and JavaScript has encouraged most newer languages like Rust and Go to follow in their footsteps. There are good reasons for this, however there are also benefits to sticking to a single paradigm. \par 
+It is true that these paradigms are more a philosophical way of approaching software design than a well-defined feature of a language and given that, no language can be said to be strictly single-paradigm. It is clear however that certain languages lend themselves to being more compatible with one paradigm than others. For example, Java is generally seen as a paragon of object-oriented programming. Every module contains exactly one class (with potentially many subclasses). Even the drivers are classes and must be instantiated before any program can be executed. One can use Java in a functional way, but doing so defeats the purpose of using Java. This is in contrast to a language like Python where it is difficult to escape the use of objects and classes, but higher order functions like folds and maps are used frequently, as are list comprehensions and other hallmarks of functional programming. At the same time, most programmers' first experience with Python is in writing plain procedural scripts. The freedom offered by such a language enables one to choose the most appropriate approach to the current task, but in doing so, it takes away the cohesiveness and predictability of a more \textit{pure} language like Java. \par 
+Similarly to the way Java is considered a paragon of the object-oriented school, Haskell is often one of the first two languages people think of when one mentions functional programming, with the other of course being Lisp. The functional style offers many advantages over a procedural or object-oriented approach as evidenced in how much modern languages have borrowed from Haskell. Rust's type system strongly resembles that of Haskell\cite{Poss2014} and modern JavaScript libraries like React  leverage functional programming more than any other paradigm. \par 
 Haskell and the functional programming style are particularly well-suited to mathematics. The notion of a `function' in procedural programming is a bit of a misnomer. Mathematically, a function $f$ is a domain $X$, a codomain $Y$, and some subset of $X \times Y$ called the graph of $f$. What is the domain of the \lstinline{print()} function in Python? What is its codomain? What is its graph? These inconsistencies vanish in Haskell. A Haskell function \textit{is} a mathematical function. For this reason, mathematicians often regard the functional paradigm as the natural choice for mathematical software. What better way to determine the injectivity of a function than with a function whose injectivity can be determined?! \par 
-It is in this spirit that the \lstinline{polynomial-algorithms} package was written. Taking advantage of the benefits offered by Haskell (as well as a few language extensions), this package offers a Polynomial type that is itself built on Monomial and Coefficient types. Several algorithms, most notably a modified version of Buchberger's algorithm to find a reduced Gr\"obner basis for a list of polynomials, are featured in this software. In addition, its scalability and modularity should provide mathematicians with an invaluable tool when analyzing polynomials. 
+It is in this spirit that the \lstinline{polynomial-algorithms} package was written. Taking advantage of the benefits offered by Haskell (as well as a few language extensions), this package offers a Polynomial type that is itself built on Monomial and Coefficient types. Several algorithms, most notably a modified version of Buchberger's algorithm to find a reduced Gr\"obner basis for a list of polynomials, are featured in this software. In addition, its scalability and modularity should provide mathematicians with an invaluable tool when analyzing polynomials. %TODO: Summarize the contents of the thesis here
 
 \chapter{Mathematical Background}
 One thing that sets functional programming apart from imperative paradigms is its reliance on mathematics. Writing algorithms or any sufficiently complex code will always require some familiarity with mathematics, and the best and most efficient code is often written by programmers competent in mathematical reasoning. However, this quality is even more important when working in a language like Haskell. This fact may be seen just by reading documentation. A good technical writer will always write to their audience. If one is writing a UDP server in Java, it may be assumed that anyone maintaining that server will be familiar with terms like \textit{port}, \textit{buffer}, or \textit{packet}, so they may appear frequently in documentation. If one is writing an operating system in C, terms like \textit{fork} and \textit{process ID} are ubiquitous enough to appear in documentation without explanation. However, one is unlikely to encounter mentions of algebraic ring theory in the documentation for such projects. When using Haskell, this is quite common\cite{Prelude}. \par 
 It is therefore imperative (pun intended) for a prospective Haskeller\footnote{The term \textit{Haskeller} refers to a regular user of Haskell.} to have a working knowledge of several areas of mathematics not usually necessary for writing programs in a procedural or object-oriented style. This is doubly important when using Haskell to write a CAS. The fact that the recommended backgrounds for the problem domain and the solution domain coincide is further evidence that Haskell is indeed a good fit for such a task. \par 
 As any software engineer will tell you, having a firm understanding of mathematical logic can be helpful in writing and debugging code. Boolean algebra is essential for the standard control flow mechanisms used in all languages. De Morgan's laws and other properties of first order logic can assist in cleaning up messy functions. It is well-known that a familiarity with combinatorics and graph theory can be helpful for those writing abstract data types or analyzing networks, and linear algebra and multivariate calculus are essential for working with 3D graphics. However, abstract algebra and category theory are rarely covered in the standard curriculum for a computer science degree. \par 
-When using Haskell, a working knowledge of algebraic group theory and ring theory, while not strictly necessary, can provide useful insight into why certain typeclasses and functions behave the way they do. When writing a CAS, this recommendation is upgraded to a strict requirement. Even more central in the design of Haskell and other functionally minded languages is the presence of the ever-intimidating category theory. Even by theoretical mathematicians, this subject is often referred to as \textit{abstract nonsense}\cite{Saunders97}. Having a reputation as as being among the most abstruse of mathematical topics, the mere fact that something as concrete and useful as writing software could employ such a concept is itself remarkable. \par 
+When using Haskell, a working knowledge of algebraic group theory and ring theory, while not strictly necessary, can provide useful insight into why certain typeclasses and functions behave the way they do. When writing a CAS, this recommendation is upgraded to a strict requirement. Even more central in the design of Haskell and other functionally-minded languages is the presence of the ever-intimidating category theory. Even by theoretical mathematicians, this subject is often referred to as \textit{abstract nonsense}\cite{Saunders1997}. Having a reputation as being among the most abstruse of mathematical topics, the mere fact that something as concrete and useful as writing software could employ such a concept is itself remarkable. \par 
 Using such a mathematically inclined language to implement a CAS is clearly an endeavour that requires a thorough understanding of the mathematics at play. Of particular importance is the theory of polynomials. 
 
 \section{Polynomials}
@@ -162,7 +166,7 @@ There are two competing ways to view a polynomial. The first is as a function fr
 In this view, the phrase \textit{polynomial in n variables} really means a linear combination of monomials drawn from a free monoid with $n$ distinct generators. Each generator is called a variable. When dealing with polynomials in a single variable, we usually use the symbol $x$ to refer to the generator of this monoid. So the polynomial $f$ defined as 
 \[ f(x) = x^2-8x+15 \]
 is a formal linear combination of the monomials $x^2$, $x$, and $1$ taken from the free monoid $\langle x \rangle$ with weights $1$,$-8$, and $15$. In the case of a three variable polynomial, the monoid used is generated by three elements. Here, there are two competing notational conventions. The first is to denote the generators as $x$, $y$, and $z$. The second is to denote the generators as $x_1$, $x_2$, and $x_3$. The former is often more readable, but the latter more easily generalizes to $n$ variables. \par 
-This viewpoint of polynomials as a formal combination of monomials rather than a function may be summed up in the following few definitions courtesy of Cox, Little and O'Shea\cite{Cox2015}: 
+This viewpoint of polynomials as a formal combination of monomials rather than a function may be summed up in the following few definitions. Note that these and the rest of the definitions in this section are courtesy of Cox, Little and O'Shea\cite{Cox2015}: 
 \begin{definition}
   A \textbf{monomial} in $x_1,\dots,x_n$ is a product of the form 
   \[ x_1^{\alpha_1} \cdot x_2^{\alpha_2} \cdots x_n^{\alpha_n}, \]
@@ -200,11 +204,11 @@ This leads us to a discussion of \textit{monomial orderings}. There are uncounta
 \end{definition}
 It turns out that the third condition above is equivalent to two other statements that are easier to work with. 
 \begin{theorem}
-  Let $X$ be a commutative free monoid and suppose the first two conditions in the definition above are satisfied. The the following are equivalent: 
+  Let $X$ be a commutative free monoid and suppose the first two conditions in the definition above are satisfied. Then the following are equivalent: 
   \begin{enumerate}
     \item $>$ is a well-ordering on $X$. 
     \item Every strictly decreasing sequence in $X$ eventually terminates. 
-    \item $x^\alpha>0$ for all $\alpha \in \bZ_{\ge0}^n$. 
+    \item $x^\alpha\ge1$ for all $\alpha \in \bZ_{\ge0}^n$. 
   \end{enumerate}
 \end{theorem}
 For a proof of this theorem, see Cox, Little and O'Shea\cite{Cox2015}. This allows us to show that certain algorithms terminate by showing that some term strictly decreases at each step of the algorithm. \par 
@@ -227,7 +231,7 @@ There are many monomial orderings that are used frequently in research, however 
 \begin{definition}[\bf Lexicographic Order]
   Let $\alpha = (\alpha_1, \dots, \alpha_n)$ and $\beta = (\beta_1,\dots,\beta_n)$ be in $\bZ_{\ge0}^n$. We say $x^\alpha >_{Lex} x^\beta$ if the leftmost nonzero entry of the vector difference $\alpha - \beta \in \bZ^n$ is positive. 
 \end{definition}
-The Lexicographic order is the order used in a dictionary. We begin with an ordering of the variables. The greater monomial is the one with the larger exponent in the first variable. If those exponents are the same, we instead calculate the Lexicographic order without the highest variable. In our previous example, $g = xy^2z^3 + x^5 + x^3y^2z$, we see that the lead term under the Lexicographic order where $x>y>z$ is $\LT(g)=x^5$. By convention, when denoting variables with subscripts, we take $x_1 > x_2 > x_3 > \dots$. \par 
+The Lexicographic order is the order used in most dictionaries. We begin with an ordering of the variables. The greater monomial is the one with the larger exponent in the first variable. If those exponents are the same, we instead calculate the Lexicographic order without the highest variable. In our previous example, $g = xy^2z^3 + x^5 + x^3y^2z$, we see that the lead term under the Lexicographic order where $x>y>z$ is $\LT(g)=x^5$. By convention, when denoting variables with subscripts, we take $x_1 > x_2 > x_3 > \dots$. \par 
 Our next monomial ordering is built out of the Lexicographic order. 
 \begin{definition}[\bf Graded Lex Order]
   Let $\alpha,\beta \in \bZ_{\ge0}^n$. We say $x^\alpha >_{GLex} x^\beta$ if $|\alpha| > |\beta|$ or $|\alpha|=|\beta|$ and $x^\alpha >_{Lex} x^\beta$. 
@@ -237,10 +241,10 @@ Our third and final monomial ordering is less intuitive than the previous two.
 \begin{definition}[\bf Graded Reverse Lex Order]
   Let $\alpha,\beta \in \bZ_{\ge0}^n$. We say $x^\alpha >_{GRevLex} x^\beta$ if $|\alpha| > |\beta|$ or $|\alpha|=|\beta|$ and the rightmost nonzero entry of $\alpha - \beta \in \bZ^n$ is negative. 
 \end{definition}
-Here, we are still ordering first by total degree, but we break ties in a manner that is in a way the reverse of Lexicographic order. Using the Graded Reverse Lex order, the lead term of $g$ is $xy^2z^3$. As unintuitive as the Graded Reverse Lex order may seem, it turns out that this ordering is often the most efficient in many algorithms, including some we will explore here. 
+Here, we are still ordering first by total degree, but we break ties in a manner that is in a way the \emph{double reversal} of Lexicographic order. Using the Graded Reverse Lex order, the lead term of $g$ is $xy^2z^3$. As unintuitive as the Graded Reverse Lex order may seem, it turns out that this ordering is often the most efficient in many algorithms, including some we will explore here. 
 
 \subsection{Ideals}
-In general, when $R$ is a commutative ring, a subring $I$ (not necessarily with identity) is an ideal if $ra \in I$ for all $r \in R$ and $a \in I$. For the polynomial ring $k[x_1,\dots,x_n]$ this means that an ideal is a nonempty subset closed under subtraction which absorbs polynomials by multiplication. For example, let $S \sbs k[x]$ be the set of polynomials with no constant or linear terms, so that $0 \in S$ and for any nonzero $f \in S$, the lowest degree term of $f$ has degree at least two. Then $S$ is easily seen to be an ideal of $k[x]$. In fact, $S$ is what is known as a \textit{principle ideal} because $S$ is \textit{generated} by a single polynomial, namely the polynomial $x^2$. This means that any polynomial in $S$ may be formed by multiplying $x^2$ by some polynomial in $k[x]$. More generally, an ideal $I \in k[x_1,\dots,x_n]$ is said to be generated by a set $B$ of polynomials if every $f \in I$ may be expressed as $f = b_1f_1 + \dots + b_tf_t$ for some $b_1,\dots,b_t \in B$ and some $f_1,\dots,f_t \in k[x_1,\dots,x_n]$. In this case, we write $I = \langle B \rangle$. In our example above, we would write $S = \langle x^2 \rangle$. It turns out that \textit{every} ideal in $k[x]$ is generated by a single polynomial, making this ring quite important in algebra and number theory. When dealing with multiple variables, we have no such luck. There is no single polynomial that generates the ideal $\langle x,y \rangle \in k[x,y,z]$. However, it is true that every polynomial ideal is generated by \textit{some} set since an ideal will generate itself. What is more impressive and not quite as obvious is the fact that every polynomial ideal is generated by some \textit{finite} set. This result was first proved by David Hilbert in 1890 and is known as \textit{Hilbert's Basis Theorem}\cite{Hilbert90}. \par 
+In general, when $R$ is a commutative ring, a subring $I$ (not necessarily with identity) is an ideal if $ra \in I$ for all $r \in R$ and $a \in I$. For the polynomial ring $k[x_1,\dots,x_n]$ this means that an ideal is a nonempty subset closed under subtraction which absorbs polynomials by multiplication. For example, let $S \sbs k[x]$ be the set of polynomials with no constant or linear terms, so that $0 \in S$ and for any nonzero $f \in S$, the lowest degree term of $f$ has degree at least two. Then $S$ is easily seen to be an ideal of $k[x]$. In fact, $S$ is what is known as a \textit{principal ideal} because $S$ is \textit{generated} by a single polynomial, namely the polynomial $x^2$. This means that any polynomial in $S$ may be formed by multiplying $x^2$ by some polynomial in $k[x]$. More generally, an ideal $I \in k[x_1,\dots,x_n]$ is said to be generated by a set $B$ of polynomials if every $f \in I$ may be expressed as $f = b_1f_1 + \dots + b_tf_t$ for some $b_1,\dots,b_t \in B$ and some $f_1,\dots,f_t \in k[x_1,\dots,x_n]$. In this case, we write $I = \langle B \rangle$. In our example above, we would write $S = \langle x^2 \rangle$. It turns out that \textit{every} ideal in $k[x]$ is generated by a single polynomial, making this ring quite important in algebra and number theory. When dealing with multiple variables, we have no such luck. There is no single polynomial that generates the ideal $\langle x,y \rangle \in k[x,y,z]$. However, it is true that every polynomial ideal is generated by \textit{some} set since an ideal will generate itself. What is more impressive and not quite as obvious is the fact that every polynomial ideal is generated by some \textit{finite} set. This result was first proved by David Hilbert in 1890 and is known as \textit{Hilbert's Basis Theorem}\cite{Hilbert1890}. \par 
 Combining our notion of the leading term of a polynomial with ideals in a polynomial ring leads us to the following definition.
 \begin{definition}
   Let $I \sbs k[x_1,\dots,x_n]$ be an ideal other than $\{0\}$, and fix a monomial ordering on $k[x_1,\dots,x_n]$. Then: 
@@ -250,30 +254,30 @@ Combining our notion of the leading term of a polynomial with ideals in a polyno
     \item We denote by $\langle \LT(I) \rangle$ the ideal generated by the elements of $\LT(I)$. 
   \end{enumerate}
 \end{definition}
-If $I \sbs k[x_1,\dots,x_n]$ is an ideal then by Hilbert's Basis Theorem, there is some finite set of polynomials $\{ b_1,\dots,b_t \} \sbs k[x_1,\dots,x_n]$ such that $I = \langle b_1,\dots,b_t \rangle$. Since $b_1,\dots,b_t \in I$, it is clear that $\langle \LT(b_1), \dots, \LT(b_t) \rangle \sbs \langle \LT(I) \rangle$. However, this containment may be proper. Only in a very special case do we achieve equality of these two sets.
+If $I \sbs k[x_1,\dots,x_n]$ is an ideal then by Hilbert's Basis Theorem, there is some finite set of polynomials $\{ b_1,\dots,b_t \} \sbs k[x_1,\dots,x_n]$ such that $I = \langle b_1,\dots,b_t \rangle$. Since $b_1,\dots,b_t \in I$, it is clear that $\langle \LT(b_1), \dots, \LT(b_t) \rangle \sbs \langle \LT(I) \rangle$. However, this containment may be proper. Only in a very special case do we achieve equality of these two sets. %TODO: Example
 
 \subsection{Gr\"obner bases}
 We mentioned polynomial long division before when making the case for why a monomial ordering is necessary. Another challenge when working with multiple variables is that, even when we have the requisite ordering to preform long division, the quotient and remainder may depend on the order of the dividends. When dividing $f$ by the ordered list $(g_1,g_2,g_3)$, we may get a different result from when dividing $f$ by the ordered list $(g_2,g_3,g_1)$. While the quotient is unfortunately doomed to this fate, there is a way we may guarantee the uniqueness of at least the remainder. It turns out this uniqueness is crucial for many of the theorems and algorithms that mathematicians rely on. \par 
 \begin{definition}
-  Fix a monomial order on the polynomial ring $k[x_1,\dots,x_n]$. A finite subset $G = \{ g_1,\dots,g_t \}$ of an ideal $I \sbs k[x_1,\dots,x_n]$ different from $\{0\}$ is said to be a \emph{Gr\"obner basis} if
+  Fix a monomial order on the polynomial ring $k[x_1,\dots,x_n]$. A finite subset $G = \{ g_1,\dots,g_t \}$ of an ideal $I \sbs k[x_1,\dots,x_n]$ different from $\{0\}$ is said to be a \textbf{Gr\"obner basis} if
   \[ \langle \LT(g_1), \dots, \LT(g_t) \rangle = \langle \LT(I) \rangle. \]
   Using the convention that $\langle \emptyset \rangle = {0}$, we define the empty set $\emptyset$ to be the Gr\"obner basis of the zero ideal $\{0\}$.
 \end{definition}
-Another way to state this definition is that the set $G = \{ g_1,\dots,g_t \}$ is a Gr\"obner basis for $I$ if the leading term of any element of $I$ is divisible by one of the $\LT(g_i)$. As one would expect, a Gr\"obner basis is indeed a basis for the ideal $I$ in the definition above and it can be shown that every ideal has a Gr\"obner basis. This is lucky because much of modern polynomial theory and algebraic geometry depends on the existence of such a basis. This is partly because the Gr\"obner basis is the set we needed to guarantee uniqueness of the remainder in the division algorithm. \par 
+Another way to state this definition is that the set $G = \{ g_1,\dots,g_t \}$ is a Gr\"obner basis for $I$ if the leading term of any element of $I$ is divisible by one of the $\LT(g_i)$. As one would expect from the terminology, a Gr\"obner basis is a generating set for the ideal $I$ in the definition above and it can be shown that every ideal has a Gr\"obner basis. This is lucky because much of modern polynomial theory and algebraic geometry depends on the existence of such a basis. This is partly because the Gr\"obner basis is the set we needed to guarantee uniqueness of the remainder in the division algorithm. \par 
 Another feature of Gr\"obner bases is a solution to the so called \emph{ideal membership problem}. For a proof of the following theorem, see \cite{Cox2015}.
 \begin{theorem}
   Let $G = \{ g_1,\dots,g_t \}$ be a Gr\"obner basis for an ideal $I \sbs k[x_1,\dots,x_n]$ and let $f \in k[x_1,\dots,x_n]$. Then $f \in I$ if and only if the remainder on division of $f$ by $G$ is zero. 
 \end{theorem}
-The remainder is sometimes called the \emph{normal form} of $f$. We will use the following notation for the remainder.
+The remainder is sometimes called the \textbf{normal form} of $f$. We will use the following notation for the remainder.
 \begin{definition}
   We will write $\overline f^{F}$ for the remainder on division of $f$ by the ordered $s$-tuple $F = (f_1,\dots,f_s)$. If $F$ is a Gr\"obner basis for $\langle f_1,\dots,f_s \rangle$, then we can regard $F$ as a set  (without any particular order). 
 \end{definition}
-One application of the division algorithm is Buchberger's algorithm for finding a Gr\"obner basis for the ideal $\langle f_1,\dots,f_t \rangle$. The idea behind this algorithm is to start with a list $(f_1,\dots,f_t)$, determine all polynomials in $\langle f_1,\dots,f_t \rangle$ that may have a lead term that isn't divisible by any of the $\LT(f_i)$, and add to the list the ones that aren't. To find a polynomial with lead term that isn't divisible by any of the $\LT(f_i)$, we need to construct a polynomial in our ideal that has a potentially different lead term from the generators. We do this by calculating \emph{$S$-polynomials}. The way we check if the $S$-polynomial is in our ideal already is via the division algorithm. 
+One application of the division algorithm is Buchberger's algorithm for finding a Gr\"obner basis for the ideal $\langle f_1,\dots,f_t \rangle$. The idea behind this algorithm is to start with a list $(f_1,\dots,f_t)$, determine all polynomials in $\langle f_1,\dots,f_t \rangle$ that may have a lead term that isn't divisible by any of the $\LT(f_i)$, and add to the list the ones that aren't. To find a polynomial with lead term that isn't divisible by any of the $\LT(f_i)$, we need to construct a polynomial in our ideal that has a potentially different lead term from the generators. We do this by calculating \emph{$S$-polynomials}. The way we check if our set can generate this $S$-polynomial is via the division algorithm. 
 \begin{definition}
   Let $f,g \in k[x_1,\dots,x_n]$ be nonzero polynomials. 
   \begin{itemize}
-    \item If $\multideg(f) = \alpha$ and $\multideg(g) = \beta$, then let $\gamma  =(\gamma_1,\dots,\gamma_n)$, where $\gamma_i = \max(\alpha_i,\beta_i)$ for each $i$. We call $x^\gamma$ the \emph{least common multiple} of $\LM(f)$ and $\LM(g)$, written $x^\gamma = \lcm(\LM(f),\LM(g))$. 
-    \item The \emph{$S$-polynomial} of $f$ and $g$ is the combination 
+    \item If $\multideg(f) = \alpha$ and $\multideg(g) = \beta$, then let $\gamma  =(\gamma_1,\dots,\gamma_n)$, where $\gamma_i = \max(\alpha_i,\beta_i)$ for each $i$. We call $x^\gamma$ the \textbf{least common multiple} of $\LM(f)$ and $\LM(g)$, written $x^\gamma = \lcm(\LM(f),\LM(g))$. 
+    \item The \textbf{$\mathbf S$-polynomial} of $f$ and $g$ is the combination 
     \[ S(f,g) = \frac{x^\gamma}{\LT(f)} \cdot f - \frac{x^\gamma}{\LT(g)} \cdot g. \]
   \end{itemize}
   (Note that we are inverting the leading coefficients here as well.)
@@ -282,15 +286,75 @@ This definition leads to a crucial result in the theory of Gr\"obner bases.
 \begin{theorem}[Buchberger's Criterion]
   Let $I$ be a polynomial ideal. Then a basis $G = \{g_1,\dots,g_t\}$ of $I$ is a Gr\"obner basis of $I$ if and only if for all pairs $i \ne j$, the remainder on division of $S(g_i,g_j)$ by $G$ (listed in some order) is zero.
 \end{theorem}
-Gr\"obner bases for ideals in polynomial rings were introduced by Bruno Buchberger in his PhD thesis\cite{Buchberger65} and named by him in honor of Wolfgang Gr\"obner, Buchberger's thesis adviser. This construction sharply influenced the direction of computational algebra for the next half a century. It is then no surprise that finding a Gr\"obner basis for a polynomial ideal in the most efficient way is a task of central importance in the field. Bruno Buchberger also developed the eponymous Buchberger's algorithm and since then, many tweaks and improvements have been made, but the basic logic of the algorithm remains largely unchanged. 
+Gr\"obner bases for ideals in polynomial rings were introduced by Bruno Buchberger in his PhD thesis\cite{Buchberger1965} and named by him in honor of Wolfgang Gr\"obner, Buchberger's thesis adviser. This construction sharply influenced the direction of computational algebra for the next half century. It is then no surprise that finding a Gr\"obner basis for a polynomial ideal in the most efficient way is a task of central importance in the field. Bruno Buchberger also developed the eponymous Buchberger's algorithm and since then, many tweaks and improvements have been made, but the basic logic of the algorithm remains largely unchanged. 
 
 \section{Categories}
-% \lipsum[2-10]
+Over the last seventy-five years, the landscape of mathematics research has shifted in many ways. One of these ways is the ubiquity of categories in many mathematical fields. Modern mathematicians dealing with schemes, sheaves, or tensors are more likely to use their categorical definitions than classical constructions. There are increasingly many attempts to introduce category theory to undergraduate mathematics students\cite{Aluffi2009}. Still, category theory has not shed its reputation for being overly abstract and useless outside of the purest of mathematical endeavors. To be fair, the first criticism is justified. Category theory is indeed abstract. Perhaps this is why the aforementioned attempts to introduce this theory to a less experienced audience have not yet become standard practice. The second criticism however is simply unfounded. \par 
+Apart from providing more elegant solutions to mathematical problems found in other fields, and providing a unified framework with which to explore the relationships between otherwise unrelated disciplines, category theory does have actual applications outside of pure mathematics. For an example, one need not look any further than the Haskell language. One of the most commonly used typeclasses is the Functor typeclass, which specifies a mechanism for \emph{mapping over} some structure. The idea of a functor is taken from category theory and is essential for effectively writing software in the Haskell language. The remaining definitions in this chapter are largely taken from Emily Riehl's \textit{Category Theory in Context}\cite{Riehl2016}.
+\begin{definition}
+  A \textbf{category} $\sC$ is a collection of \textbf{objects} and \textbf{morphisms} such that: 
+  \begin{itemize}
+    \item Each morphism has specified \textbf{domain} and \textbf{codomain} objects. We denote the collection of morphisms with domain $a$ and codomain $b$ as $\Hom(a,b)$. If this collection is a set\footnote{The axioms of set theory may prevent this.}, we call $\Hom(a,b)$ the \textbf{hom set} of $(a,b)$. 
+    \item Each object $x$ has a designated \textbf{identity morphism} $1_x \in \Hom(x,x)$. 
+    \item If $f \in \Hom(a,b)$ and $g \in \Hom(b,c)$, then there is a morphism $gf \in \Hom(a,c)$. In this case, we say $f$ and $g$ are \textbf{composable} and $gf$ is a \textbf{composite}. 
+  \end{itemize}
+  This data is subject to the following two axioms: 
+  \begin{itemize}
+    \item For any $f \in \Hom(a,b)$, the composites $1_bf$ and $f1_a$ are both equal to $f$. 
+    \item For any composable triple of morphisms $f,g,h$, the composites $h(gf)$ and $(hg)f$ are equal.
+  \end{itemize}
+\end{definition}
+The prototypical example of a category is $\mathsf{Set}$ whose objects are sets and whose morphisms are the functions between those sets. In many categories, the morphisms are set-functions of some kind, but that is not always the case.
+\begin{example}
+  Recall that a poset is a set along with a relation that is reflexive, transitive, and antisymmetric. Let $(S,\le)$ be a poset. Then we may define a category $\mathsf S$ that has the elements of $S$ as its objects. If $a \le b$ then let $\Hom(a,b)$ be the singleton consisting of the element $(a,b) \in S \times S$. Otherwise, let $\Hom(a,b)=\emptyset$. Define the composition law as $(a,b)(b,c)=(a,c)$. As each hom set has at most a single element, there is only one choice for the identity morphism. \par
+  If $(a,b)$ and $(b,c)$ both exist, then we must have that $a \le b \le c$, so since $\le$ is transitive, $(a,c)$ exists and so composition is well defined. Since $\le$ is reflexive, $(a,a) \in \Hom(a,a)$ and 
+  \[ (a,a)(a,b) = (a,b) = (a,b)(b,b). \]
+  Also observe that 
+  \[ ((a,b)(b,c))(c,d) = (a,c)(c,d) = (a,d) = (a,b)(b,d) = (a,b)((b,c)(c,d)), \]
+  so composition is associative. This shows that $\mathsf S$ satisfies the axioms for a category. 
+\end{example}
+It is common in mathematics to introduce some kind of object that is only important because of the functions between objects of that kind. Linear algebra may be the study of vector spaces, but the important part is the linear maps. Topology may be concerned with open sets, but it is the continuous maps that topologists really care about. Group homomorphisms are in a sense are much more important than groups themselves. It is no different with categories. The interesting part is the maps between categories. The even more interesting part is the maps between those maps. 
+\begin{definition}
+  A \textbf{functor} $\cF: \sC \to \sD$ between categories $\sC$ and $\sD$ consists of the following data:
+  \begin{itemize}
+    \item An object $\cF x \in \sD$ for each object $x \in \sC$. 
+    \item A morphism $\cF f \in \Hom(\cF a,\cF b)$ for each morphism $f \in \Hom(a,b)$. 
+  \end{itemize}
+  These assignments are required to satisfy the following axioms:
+  \begin{itemize}
+    \item For any composable pair of morphisms $f,g \in \sC$, $(\cF f) (\cF g) = \cF(gf)$. 
+    \item For each object $x \in \sC$, $\cF(1_x) = 1_{\cF x}$. 
+  \end{itemize}
+  We call a functor $\cF: \sC \to \sC$ between a category and itself an \textbf{endofunctor}. The category of endofunctors on $\sC$ is denoted $\sC^\sC$. 
+\end{definition}
+\begin{definition}
+  Given functors $\cF, \cG: \sC \to \sD$, a \textbf{natural transformation} $\tau: \cF \Rightarrow \cG$ is a map from objects in $\sC$ to morphisms in $\sD$ such that $\tau_x \in \Hom(\cF x, \cG x)$ making the following diagram commute for all $a,b \in \sC$ and all $f \in \Hom(a,b)$. 
+\end{definition}
+\[ \SelectTips{cm}{}\xymatrix@R+1pc@C+1pc{
+    \cF a \ar[r]^{\tau_a} \ar[d]_{\cF f} & \cG a \ar[d]^{\cG f} \\ \cF b \ar[r]_{\tau_b} & \cG b
+} \]
+We won't spend much time discussing the finer points of category theory. If teaching the fundamentals to a class of advanced undergraduate mathematics students over the course of a semester in their senior year is a bold undertaking, then explaining it in a single section of this document is a Kobayashi Maru\footnote{See \textit{Star Trek II: The Wrath of Khan} (1982).}. We do however need to address one more categorical construction before proceeding. The reason for its inclusion will become apparent in Chapter 3. 
+\begin{definition}
+  A \textbf{monad} on a category $\sC$ consists of 
+  \begin{itemize}
+    \item an endofunctor $\cT: \sC \to \sC$,
+    \item a \textbf{unit} natural transformation $\eta: 1_\sC \Rightarrow \cT$, and 
+    \item a \textbf{multiplication} natural transformation $\mu: \cT^2 \Rightarrow \cT$,
+  \end{itemize}
+  so that the following diagrams commute in $\sC^\sC$: 
+\[ \SelectTips{cm}{}\xymatrix@R+1pc@C+1pc{
+  \cT^3 \ar@{=>}[r]^{\cT\mu} \ar@{=>}[d]_{\mu \cT} & \cT^2 \ar@{=>}[d]^\mu \\ \cT^2 \ar@{=>}[r]_\mu & \cT
+} \qquad\qquad \SelectTips{cm}{}\xymatrix@R+1pc@C+1pc{
+  \cT \ar@{=>}[r]^{\eta \cT} \ar@{=>}[dr]_{1_\cT} & \cT^2 \ar@{=>}[d]^\mu & \cT \ar@{=>}[l]_{\cT\eta} \ar@{=>}[dl]^{1_\cT} \\ & \cT &
+} \]
+The idea of commuting diagrams is central to the study of category theory. It is a concise way of saying that any allowed composition of maps in the diagram will be equivalent if they share a domain and a codomain. 
+
+\end{definition}
 
 \chapter{Functional Programming}
 Among the key features of a language like Haskell is the guarantee of functional purity. A function in Haskell does exactly one thing. It returns a value. That's it. It cannot alter the state of the program. It cannot cause anything to happen other than returning that value. This makes a Haskell program far more predictable than any program written outside of a purely functional paradigm. This is particularly useful when writing multithreaded code. The inability for a thread to alter any resource that another thread is using simplifies the task tremendously. \par 
 In this way, software written in Haskell, or indeed any purely functional language, resembles mathematics quite closely. As we have previously mentioned, a mathematical function is merely a domain set, a codomain set, and a graph. When thinking of a function as \emph{doing something}, the only thing it \emph{does} is transform a domain element into its associated codomain element. However, the very notion of a function doing anything is a bit of an abuse of language. Given sets $X$ and $Y$, the existence of a function $f: X \to Y$ gives us a way to refer to certain elements of $Y$ as $f(x)$ for some $x \in X$. It doesn't really preform an action. This is in contrast to a function in the computer programming sense. A function \lstinline{foo} in the Python language certainly does something. When \lstinline{foo} is called, it preforms its task and then it returns if and when it finishes. This is really the most fundamental difference in functional programming and imperative programming. \par 
-Recall the difference between a declarative sentence and an imperative sentence. The sentence ``John has twelve eggs." is a declarative sentence while the sentence ``Give John twelve eggs." is an imperative sentence. The foundations of mathematics are built on the use of statements. A statement is a declarative sentence with a well-defined (or unambiguous) truth value\cite{Bond1999}. Theorems are statements. Definitions are statements. A proof is a collection is statements. Mathematicians deal predominantly with statements. If we encounter a question, we first rephrase it as a statement before we attempt to verify its veracity. However, imperative programmers are more accustomed to dealing with imperative sentences (indeed, it is easy to forget that this is where the term \emph{imperative programming} comes from.) An instruction is an imperative sentence. A traditional algorithm is a sequence of imperative sentences. \lstinline{print("Hello world")} is an imperative sentence. It could be said that imperative programming is as much founded on the unambiguous imperative sentence as mathematics is founded on the unambiguous declarative sentence. \par 
+Recall the difference between a declarative sentence and an imperative sentence. The sentence ``John has twelve eggs." is a declarative sentence while the sentence ``Give John twelve eggs." is an imperative sentence. The foundations of mathematics are built on the use of statements. A statement is a declarative sentence with a well-defined (or unambiguous) truth value\cite{Bond1999}. Theorems are statements. Definitions are statements. A proof is a collection of statements. Mathematicians deal predominantly with statements. If we encounter a question, we first rephrase it as a statement before we attempt to verify its veracity. However, imperative programmers are more accustomed to dealing with imperative sentences (indeed, it is easy to forget that this is where the term \emph{imperative programming} comes from.) An instruction is an imperative sentence. A traditional algorithm is a sequence of imperative sentences. \lstinline{print("Hello world")} is an imperative sentence. It could be said that imperative programming is as much founded on the unambiguous imperative sentence as mathematics is founded on the unambiguous declarative sentence. \par 
 The procedural and object oriented design philosophies are both considered imperative styles. Functional programming is often considered a declarative style. What this means is that a line of Java or C code is usually meant to be read as an imperative sentence, while a line of Haskell code is meant to be read as a declarative sentence. This allows Haskell syntax to resemble the syntax of mathematics much more closely than other languages. For example, say we want to construct a list containing the first ten perfect squares. In C, this task amounts to a series of instructions:
 \begin{lstlisting}[language=C]
 int squares[10];
@@ -308,7 +372,7 @@ fn :: X -> Y
 fn x = y
 \end{lstlisting}
 This syntax should be quite familiar to mathematicians. Indeed, it is the traditional syntax of mathematics that inspired the design of Haskell syntax. \par 
-Hidden in this syntax is one of Haskell's principle features: Currying. Say we want a function that takes two integers as input and returns their sum. In C, this would look something like the following.
+Hidden in this syntax is one of Haskell's principal features: Currying. Say we want a function that takes two integers as input and returns their sum. In C, this would look something like the following.
 \begin{lstlisting}[language=C]
 int addTwo(int x, int y) {
     return x + y;
@@ -362,6 +426,12 @@ In many cases, a recursive solution is cleaner and more readable than a loop, bu
 
 \section{The Division Algorithm}
 % \lipsum[76-85]
+Suppose $n$ is given and let $\bF[\mathbf x] = \bF[x_1,\dots,x_n]$. Denote the set of finite ordered lists of polynomials in $\bF[\mathbf x]$ as $[\bF[\mathbf x]]$\footnote{This notation is meant to resemble the syntax for a list in Haskell.}. If the list $G$ is in $[\bF[\mathbf x]]$, then denote the $n$th entry in $G$ as $g_n$ and let $G \setminus g_n$ refer to the list obtained by removing $g_n$ from $G$ and maintaining the relative order of the rest of $G$. Let $\emptyset \in [\bF[\mathbf x]]$ denote the empty list. Let $\p: [\bF[\mathbf x]] \times \left( \bF[\mathbf x] \times \bF[\mathbf x] \right) \to \bF[\mathbf x] \times \bF[\mathbf x]$ be the function defined as 
+\[ \p(G,(p,r)) = \begin{cases} (p-\LT(p),r+\LT(p)) &\text{if } G = \emptyset, \\ (p-\frac{\LT(p)}{\LT(g_1)}g_1,r) &\text{if } G \ne \emptyset \and \LT(g_1) \mid \LT(p), \\ \p(G\setminus g_1,(p,r)) &\text{if } G \ne \emptyset \and \LT(g_1) \nmid \LT(p). \end{cases} \]
+Let $\psi: [\bF[\mathbf x]] \times \left( \bF[\mathbf x] \times \bF[\mathbf x] \right) \to \bF[\mathbf x]$ be the function defined as
+\[ \psi(G,(p,r)) = \begin{cases} r &\text{if } p = 0, \\ \psi(G,\p(G,(p,r))) &\text{if } p \ne 0. \end{cases} \]
+Then
+\[ \overline f^{G} = \psi(G,(f,0)). \]
 
 \section{Buchberger's Algorithm}
 % \lipsum[86-95]
