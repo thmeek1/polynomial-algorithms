@@ -42,22 +42,13 @@ longDiv f gs = lastTwo $ outerLoop gs (f, replicate (length gs) 0, 0)
 reduce :: (Ord (Mon n o), Fractional (Coef r), Arity n)
           => Poly r n o -> [Poly r n o] -> Poly r n o
 reduce f gs = outerLoop gs (f, 0)
-    where outerLoop _ (0, r) = r
-          outerLoop gs (p, r) = outerLoop gs $ innerLoop gs (p,r)
-          innerLoop [] (p,r) = (P.dropLeadTerm p, rUpdate p r)
-          innerLoop gs (p,r) = if (head gs) `P.leadTermDivs` p
-                               then (pUpdate p (head gs), r)
-                               else innerLoop (tail gs) (p,r)
-
--- | infix version of longDiv
-(//) :: (Ord (Mon n o), Fractional (Coef r), Arity n)
-        => Poly r n o -> [Poly r n o] -> ([Poly r n o], Poly r n o)
-(//) = longDiv
-
--- | infix version of reduce
-(/%) :: (Ord (Mon n o), Fractional (Coef r), Arity n)
-        => Poly r n o -> [Poly r n o] -> Poly r n o
-(/%) = reduce
+    where
+        outerLoop _ (0, r) = r
+        outerLoop gs (p, r) = outerLoop gs $ innerLoop gs (p,r)
+        innerLoop [] (p,r) = (P.dropLeadTerm p, rUpdate p r)
+        innerLoop gs (p,r) = if (head gs) `P.leadTermDivs` p
+                             then (pUpdate p (head gs), r)
+                             else innerLoop (tail gs) (p,r)
 
 -- p := p − (LT(p)/LT(g))*g
 pUpdate :: (Ord (Mon n o), Fractional (Coef r), Arity n)
@@ -79,50 +70,76 @@ qUpdate p g qs n = modifyAt n (+ lth) qs
     where Just ltp = P.leadTerm p
           Just lth = ltp `P.divideByLeadTerm` g
 
+-- | infix version of longDiv
+(//) :: (Ord (Mon n o), Fractional (Coef r), Arity n)
+        => Poly r n o -> [Poly r n o] -> ([Poly r n o], Poly r n o)
+(//) = longDiv
+
+-- | infix version of reduce
+(/%) :: (Ord (Mon n o), Fractional (Coef r), Arity n)
+        => Poly r n o -> [Poly r n o] -> Poly r n o
+(/%) = reduce
+
 -- | Implementation of Buchburger's algorithm to find a Groebner basis.
 basis :: (Ord (Mon n o), Fractional (Coef r), Arity n) => [Poly r n o] -> [Poly r n o]
 basis fs = if fs == gs then fs else basis gs
-    where startingPairs = [(m,n) | n <- [0..length fs - 1], m <- [0..n-1]]
-          gs = cycle1 (startingPairs, fs)
-          cycle1 ([], gs) = gs
-          cycle1 (pairs, gs) = cycle1 (tail pairs ++ newPairs r gs, gs ++ newPoly)
-              where g1 = gs !! fst (head pairs)
-                    g2 = gs !! snd (head pairs)
-                    r = fromMaybe 0 (P.sPoly g1 g2) /% gs
-                    newPoly = if r /= 0 then [P.normalize r] else []
+    where
+        gs = cycle [(m,n) | n <- [0..length fs - 1], m <- [0..n-1]] fs
+        cycle [] gs = gs
+        cycle pairs gs = cycle (tail pairs ++ newPairs r gs) (gs ++ newPoly)
+            where
+                g1 = gs !! fst (head pairs)
+                g2 = gs !! snd (head pairs)
+                r = fromMaybe 0 (P.sPoly g1 g2) /% gs
+                newPoly = if r /= 0 then [P.normalize r] else []
 
 -- Determine which new S-pairs to calculate during Buchberger's algorithm.
 newPairs :: (Ord (Mon n o), Num (Coef r), Arity n)
             => Poly r n o -> [Poly r n o] -> [(Int,Int)]
-newPairs 0 gs = []
+newPairs 0 _ = []
 newPairs r gs = [(m,length gs - 1) | m <- [0..length gs - 2]]
 --    where coprime g = r `P.leadTermCoprime` (gs !! g)
 
 {--
--- | Implementation of Buchburger's algorithm to find a Groebner basis.
+-- Implementation of Buchburger's algorithm using a list of polynomial tuples
+-- instead of a list of index tuples.
 basis :: (Ord (Mon n o), Fractional (Coef r), Arity n) => [Poly r n o] -> [Poly r n o]
 basis fs = if fs == gs then fs else basis gs
-    where startingPairs = [(g1,g2) | g1 <- fs, g2 <- fs, g1 /= g2]
-          gs = cycle1 (startingPairs, fs)
-          cycle1 ([], gs) = gs
-          cycle1 (pairs, gs) = cycle1 (tail pairs ++ newPairs r gs, gs ++ newPoly)
-              where g1 = fst (head pairs)
-                    g2 = snd (head pairs)
-                    r = fromMaybe 0 (P.sPoly g1 g2) /% gs
-                    newPoly = if r /= 0 then [P.normalize r] else []
+    where
+        startingPairs = [(f1,f2) | f1 <- fs, f2 <- fs, f1 /= f2]
+        gs = cycle startingPairs fs
+        cycle [] gs = gs
+        cycle pairs gs = cycle (tail pairs ++ newPairs r gs) (gs ++ newPoly)
+            where (g1,g2) = head pairs
+                r = fromMaybe 0 (P.sPoly g1 g2) /% gs
+                newPoly = if r /= 0 then [P.normalize r] else []
 
 newPairs :: (Ord (Mon n o), Num (Coef r), Arity n)
             => Poly r n o -> [Poly r n o] -> [(Poly r n o, Poly r n o)]
-newPairs 0 gs = []
+newPairs 0 _ = []
 newPairs r gs = [(r,g) | g <- gs, coprime g]
     where coprime g = r `P.leadTermCoprime` g
+
+-- Implementation of Buchburger's algorithm with no optimizations.
+basis :: (Ord (Mon n o), Fractional (Coef r), Arity n) => [Poly r n o] -> [Poly r n o]
+basis fs = if fs == gs then fs else basis gs
+    where
+        gs = cycle [(f1,f2) | f1 <- fs, f2 <- fs] fs
+        cycle [] gs = gs
+        cycle pairs gs = cycle (tail pairs ++ newPairs) (gs ++ newPoly)
+            where
+                (g1,g2) = head pairs
+                r = fromMaybe 0 (P.sPoly g1 g2) /% gs
+                newPoly = if r /= 0 then [P.normalize r] else []
+                newPairs = if r /= 0 then [(r,g) | g <- gs] else []
 --}
 
 -- | Implementation of Buchburger's algorithm to find a reduced Groebner basis.
 gb :: (Ord (Mon n o), Fractional (Coef r), Arity n) => [Poly r n o] -> [Poly r n o]
 gb fs = [g /% delete g minBasis | g <- minBasis]
-    where gs = basis (map P.normalize fs)
-          minBasis = filter (\g -> not (any (`P.leadTermDivs` g) (delete g gs))) gs
+    where
+        gs = basis (map P.normalize fs)
+        minBasis = filter (\g -> not (any (`P.leadTermDivs` g) (delete g gs))) gs
 
 -- | Determines if the first set is a basis for the ideal generated by the second set.
 isBasisOf :: (Ord (Mon n o), Fractional (Coef r), Arity n)

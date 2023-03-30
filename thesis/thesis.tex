@@ -42,10 +42,10 @@
         basicstyle=\xpt\droidsansmono,
         breaklines=true,
         showstringspaces=false,
-        backgroundcolor=\color{backcolour},   
-        commentstyle=\color{codegreen},
-        keywordstyle=\color{blue},
-        stringstyle=\color{codepurple}}
+        backgroundcolor=\color{backcolour}}
+        % commentstyle=\color{codegreen},
+        % keywordstyle=\color{blue},
+        % stringstyle=\color{codepurple}}
 
 % \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 % \DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
@@ -86,16 +86,17 @@
 % \DeclareMathOperator{\Aut}{Aut}
 % \DeclareMathOperator{\Dim}{Dim}
 % \DeclareMathOperator{\ev}{ev}
+\DeclareMathOperator{\gb}{gb}
 % \DeclareMathOperator{\GL}{GL}
 \DeclareMathOperator{\Hom}{Hom}
 \DeclareMathOperator{\id}{id}
 \DeclareMathOperator{\im}{im}
+\DeclareMathOperator{\lcm}{lcm}
 % \DeclareMathOperator{\Mat}{Mat}
 % \DeclareMathOperator{\nullsp}{null}
 % \DeclareMathOperator{\range}{range}
 % \DeclareMathOperator{\SL}{SL}
 \DeclareMathOperator{\Span}{span}
-\DeclareMathOperator{\lcm}{lcm}
 \newcommand{\LT}{\ensuremath{\text{\sc lt}}}
 \newcommand{\LM}{\ensuremath{\text{\sc lm}}}
 \newcommand{\LC}{\ensuremath{\text{\sc lc}}}
@@ -289,14 +290,14 @@ This definition leads to a crucial result in the theory of Gr\"obner bases.
 Gr\"obner bases for ideals in polynomial rings were introduced by Bruno Buchberger in his PhD thesis\cite{Buchberger1965} and named by him in honor of Wolfgang Gr\"obner, Buchberger's thesis adviser. This construction sharply influenced the direction of computational algebra for the next half century. It is then no surprise that finding a Gr\"obner basis for a polynomial ideal in the most efficient way is a task of central importance in the field. Bruno Buchberger also developed the eponymous Buchberger's algorithm and since then, many tweaks and improvements have been made, but the basic logic of the algorithm remains largely unchanged. 
 
 \section{Categories}
-Over the last seventy-five years, the landscape of mathematics research has shifted in many ways. One of these ways is the ubiquity of categories in many mathematical fields. Modern mathematicians dealing with schemes, sheaves, or tensors are more likely to use their categorical definitions than classical constructions. There are increasingly many attempts to introduce category theory to undergraduate mathematics students\cite{Aluffi2009}. Still, category theory has not shed its reputation for being overly abstract and useless outside of the purest of mathematical endeavors. To be fair, the first criticism is justified. Category theory is indeed abstract. Perhaps this is why the aforementioned attempts to introduce this theory to a less experienced audience have not yet become standard practice. The second criticism however is simply unfounded. \par 
+Over the last seventy-five years, the landscape of mathematics research has shifted in many ways. One of these ways is the ubiquity of categories in many mathematical fields. Modern mathematicians dealing with sheaves or tensors are more likely to use their categorical definitions than classical constructions. There are increasingly many attempts to introduce category theory to undergraduate mathematics students\cite{Aluffi2009}. Still, category theory has not shed its reputation for being overly abstract and useless outside of the purest of mathematical endeavors. To be fair, the first criticism is justified. Category theory is indeed abstract. Perhaps this is why the aforementioned attempts to introduce this theory to a less experienced audience have not yet become standard practice. The second criticism however is simply unfounded. \par 
 Apart from providing more elegant solutions to mathematical problems found in other fields, and providing a unified framework with which to explore the relationships between otherwise unrelated disciplines, category theory does have actual applications outside of pure mathematics. For an example, one need not look any further than the Haskell language. One of the most commonly used typeclasses is the Functor typeclass, which specifies a mechanism for \emph{mapping over} some structure. The idea of a functor is taken from category theory and is essential for effectively writing software in the Haskell language. The remaining definitions in this chapter are largely taken from Emily Riehl's \textit{Category Theory in Context}\cite{Riehl2016}.
 \begin{definition}
   A \textbf{category} $\sC$ is a collection of \textbf{objects} and \textbf{morphisms} such that: 
   \begin{itemize}
     \item Each morphism has specified \textbf{domain} and \textbf{codomain} objects. We denote the collection of morphisms with domain $a$ and codomain $b$ as $\Hom(a,b)$. If this collection is a set\footnote{The axioms of set theory may prevent this.}, we call $\Hom(a,b)$ the \textbf{hom set} of $(a,b)$. 
     \item Each object $x$ has a designated \textbf{identity morphism} $1_x \in \Hom(x,x)$. 
-    \item If $f \in \Hom(a,b)$ and $g \in \Hom(b,c)$, then there is a morphism $gf \in \Hom(a,c)$. In this case, we say $f$ and $g$ are \textbf{composable} and $gf$ is a \textbf{composite}. 
+    \item If $f \in \Hom(a,b)$ and $g \in \Hom(b,c)$, then there is a morphism $gf \in \Hom(a,c)$. In this case, we say $f$ and $g$ are \textbf{composable} and $gf$ is their \textbf{composite}. 
   \end{itemize}
   This data is subject to the following two axioms: 
   \begin{itemize}
@@ -308,8 +309,8 @@ The prototypical example of a category is $\mathsf{Set}$ whose objects are sets 
 \begin{example}
   Recall that a poset is a set along with a relation that is reflexive, transitive, and antisymmetric. Let $(S,\le)$ be a poset. Then we may define a category $\mathsf S$ that has the elements of $S$ as its objects. If $a \le b$ then let $\Hom(a,b)$ be the singleton consisting of the element $(a,b) \in S \times S$. Otherwise, let $\Hom(a,b)=\emptyset$. Define the composition law as $(a,b)(b,c)=(a,c)$. As each hom set has at most a single element, there is only one choice for the identity morphism. \par
   If $(a,b)$ and $(b,c)$ both exist, then we must have that $a \le b \le c$, so since $\le$ is transitive, $(a,c)$ exists and so composition is well defined. Since $\le$ is reflexive, $(a,a) \in \Hom(a,a)$ and 
-  \[ (a,a)(a,b) = (a,b) = (a,b)(b,b). \]
-  Also observe that 
+  \[ (a,a)(a,b) = (a,b) = (a,b)(b,b), \]
+  so the $(a,a)$ does serve as the identity on $a$. Also observe that 
   \[ ((a,b)(b,c))(c,d) = (a,c)(c,d) = (a,d) = (a,b)(b,d) = (a,b)((b,c)(c,d)), \]
   so composition is associative. This shows that $\mathsf S$ satisfies the axioms for a category. 
 \end{example}
@@ -325,15 +326,16 @@ It is common in mathematics to introduce some kind of object that is only import
     \item For any composable pair of morphisms $f,g \in \sC$, $(\cF f) (\cF g) = \cF(gf)$. 
     \item For each object $x \in \sC$, $\cF(1_x) = 1_{\cF x}$. 
   \end{itemize}
-  We call a functor $\cF: \sC \to \sC$ between a category and itself an \textbf{endofunctor}. The category of endofunctors on $\sC$ is denoted $\sC^\sC$. 
+  We call a functor $\cF: \sC \to \sC$ between a category and itself an \textbf{endofunctor}. The category of endofunctors on $\sC$ is denoted $\sC^\sC$. The morphisms in the category $\sC^\sC$ are examples of \emph{natural transformations}. 
 \end{definition}
 \begin{definition}
   Given functors $\cF, \cG: \sC \to \sD$, a \textbf{natural transformation} $\tau: \cF \Rightarrow \cG$ is a map from objects in $\sC$ to morphisms in $\sD$ such that $\tau_x \in \Hom(\cF x, \cG x)$ making the following diagram commute for all $a,b \in \sC$ and all $f \in \Hom(a,b)$. 
+  \[ \SelectTips{cm}{}\xymatrix@R+1pc@C+1pc{
+      \cF a \ar[r]^{\tau_a} \ar[d]_{\cF f} & \cG a \ar[d]^{\cG f} \\ \cF b \ar[r]_{\tau_b} & \cG b
+  } \]
 \end{definition}
-\[ \SelectTips{cm}{}\xymatrix@R+1pc@C+1pc{
-    \cF a \ar[r]^{\tau_a} \ar[d]_{\cF f} & \cG a \ar[d]^{\cG f} \\ \cF b \ar[r]_{\tau_b} & \cG b
-} \]
-We won't spend much time discussing the finer points of category theory. If teaching the fundamentals to a class of advanced undergraduate mathematics students over the course of a semester in their senior year is a bold undertaking, then explaining it in a single section of this document is a Kobayashi Maru\footnote{See \textit{Star Trek II: The Wrath of Khan} (1982).}. We do however need to address one more categorical construction before proceeding. The reason for its inclusion will become apparent in Chapter 3. 
+The idea of commuting diagrams is central to the study of category theory. It is a concise way of saying that any allowed composition of maps in the diagram will be equivalent if they share a domain and a codomain. A common categorical technique to prove theorems is called \emph{diagram chasing}. Diagram chasing involves finding equivalent map compositions. \par
+We won't spend much time discussing the finer points of category theory. If teaching the fundamentals to a class of advanced undergraduate mathematics students over the course of a semester in their senior year is a bold undertaking, then explaining it in a single section of this document is a Kobayashi Maru\footnote{See \textit{Star Trek II: The Wrath of Khan} (1982).}. We do however need to address one more categorical construction before proceeding. 
 \begin{definition}
   A \textbf{monad} on a category $\sC$ consists of 
   \begin{itemize}
@@ -347,14 +349,13 @@ We won't spend much time discussing the finer points of category theory. If teac
 } \qquad\qquad \SelectTips{cm}{}\xymatrix@R+1pc@C+1pc{
   \cT \ar@{=>}[r]^{\eta \cT} \ar@{=>}[dr]_{1_\cT} & \cT^2 \ar@{=>}[d]^\mu & \cT \ar@{=>}[l]_{\cT\eta} \ar@{=>}[dl]^{1_\cT} \\ & \cT &
 } \]
-The idea of commuting diagrams is central to the study of category theory. It is a concise way of saying that any allowed composition of maps in the diagram will be equivalent if they share a domain and a codomain. 
-
 \end{definition}
+The reason for this definition is necessary will become apparent in Chapter 3. 
 
 \chapter{Functional Programming}
-Among the key features of a language like Haskell is the guarantee of functional purity. A function in Haskell does exactly one thing. It returns a value. That's it. It cannot alter the state of the program. It cannot cause anything to happen other than returning that value. This makes a Haskell program far more predictable than any program written outside of a purely functional paradigm. This is particularly useful when writing multithreaded code. The inability for a thread to alter any resource that another thread is using simplifies the task tremendously. \par 
+Among the key features of a language like Haskell is the guarantee of functional purity. A function in Haskell does exactly one thing. It returns a value. That's it. It cannot alter the state of the program. It cannot react to external state. It cannot cause anything to happen other than returning that value. This makes a Haskell program far more predictable than any program written outside of a purely functional paradigm. This is particularly useful when writing multithreaded code. The inability for a thread to alter any resource that another thread is using simplifies the task tremendously. \par 
 In this way, software written in Haskell, or indeed any purely functional language, resembles mathematics quite closely. As we have previously mentioned, a mathematical function is merely a domain set, a codomain set, and a graph. When thinking of a function as \emph{doing something}, the only thing it \emph{does} is transform a domain element into its associated codomain element. However, the very notion of a function doing anything is a bit of an abuse of language. Given sets $X$ and $Y$, the existence of a function $f: X \to Y$ gives us a way to refer to certain elements of $Y$ as $f(x)$ for some $x \in X$. It doesn't really preform an action. This is in contrast to a function in the computer programming sense. A function \lstinline{foo} in the Python language certainly does something. When \lstinline{foo} is called, it preforms its task and then it returns if and when it finishes. This is really the most fundamental difference in functional programming and imperative programming. \par 
-Recall the difference between a declarative sentence and an imperative sentence. The sentence ``John has twelve eggs." is a declarative sentence while the sentence ``Give John twelve eggs." is an imperative sentence. The foundations of mathematics are built on the use of statements. A statement is a declarative sentence with a well-defined (or unambiguous) truth value\cite{Bond1999}. Theorems are statements. Definitions are statements. A proof is a collection of statements. Mathematicians deal predominantly with statements. If we encounter a question, we first rephrase it as a statement before we attempt to verify its veracity. However, imperative programmers are more accustomed to dealing with imperative sentences (indeed, it is easy to forget that this is where the term \emph{imperative programming} comes from.) An instruction is an imperative sentence. A traditional algorithm is a sequence of imperative sentences. \lstinline{print("Hello world")} is an imperative sentence. It could be said that imperative programming is as much founded on the unambiguous imperative sentence as mathematics is founded on the unambiguous declarative sentence. \par 
+Recall the difference between a declarative sentence and an imperative sentence. The sentence ``Steve has twelve eggs." is a declarative sentence while the sentence ``Give Steve twelve eggs." is an imperative sentence. The foundations of mathematics are built on the use of statements. A statement is a declarative sentence with a well-defined (or unambiguous) truth value\cite{Bond1999}. Theorems are statements. Definitions are statements. A proof is a collection of statements. Mathematicians deal predominantly with statements. If we encounter a question, we first rephrase it as a statement before we attempt to verify its veracity. However, imperative programmers are more accustomed to dealing with imperative sentences (indeed, it is easy to forget that this is where the term \emph{imperative programming} comes from.) An instruction is an imperative sentence. A traditional algorithm is a sequence of imperative sentences. \lstinline{print("Hello world")} is an imperative sentence. It could be said that imperative programming is as much founded on the unambiguous imperative sentence as mathematics is founded on the unambiguous declarative sentence. \par 
 The procedural and object oriented design philosophies are both considered imperative styles. Functional programming is often considered a declarative style. What this means is that a line of Java or C code is usually meant to be read as an imperative sentence, while a line of Haskell code is meant to be read as a declarative sentence. This allows Haskell syntax to resemble the syntax of mathematics much more closely than other languages. For example, say we want to construct a list containing the first ten perfect squares. In C, this task amounts to a series of instructions:
 \begin{lstlisting}[language=C]
 int squares[10];
@@ -366,7 +367,12 @@ In Haskell on the other hand, instead of specifying instructions, we merely decl
 squares = [x^2 | x <- [0..9]]
 \end{lstlisting}
 In this way, the discussion of functions having side effects becomes moot as functions don't \emph{do} anything. They are merely maps identifying domain elements with codomain elements, just as they are in mathematics. \par 
-When thinking about functions in this declarative manner, it becomes apparent that the only real difference between functions and non-functions is that a function needs an additional element to be fully evaluated. If \lstinline{fn} is a Haskell function that maps \lstinline{X} to \lstinline{Y} and \lstinline{x} is a term of type \lstinline{X}, then \lstinline{fn} has type \lstinline{X -> Y} and \lstinline{fn x} has type \lstinline{Y}. In Haskell, we write 
+Because of this, the explicit temporal constraints usually present in other languages simply aren't there in Haskell. In the C version of the \lstinline{squares} function above, the square of 2 is clearly evaluated before the square of 3. Whereas in the Haskell version, that may or may not be the case. Expressions are only evaluated when they are needed and not before. This is known as \emph{lazy evaluation}. This leads to some interesting features in Haskell. One is infinite lists. When mathematicians see the expression, ``Consider the set $\bZ$", they don't run through every integer in their head and allocate infinitely many brain cells to holding the values for each integer. They just know that $\bZ$ is a set and know its properties. Then, once a specific integer is mentioned, they can allocate the necessary brain power to think of that specific one they need. This is how lazy evaluation works. In the following line of code, \lstinline{[3..]} is the infinite list consisting of every integer greater than or equal to 3.
+\begin{lstlisting}[language=Haskell]
+take 5 [3..]
+\end{lstlisting}
+The \lstinline{take n} function takes the first $n$ elements from the list it is given. In this case, we get the list \lstinline{[3,4,5,6,7]}. There was no need to evaluate the 6th entry of the list, so Haskell never did. \par 
+When thinking about functions in a declarative manner, it becomes apparent that the only real difference between functions and non-functions is that a function needs an additional element to be fully evaluated. If \lstinline{fn} is a Haskell function that maps something of type \lstinline{X} to something of type \lstinline{Y} and \lstinline{x} is a term of type \lstinline{X}, then \lstinline{fn} has type \lstinline{X -> Y} and \lstinline{fn x} has type \lstinline{Y}. In Haskell, we write 
 \begin{lstlisting}[language=Haskell]
 fn :: X -> Y
 fn x = y
@@ -388,7 +394,8 @@ However, there is another, more natural way to accomplish this in mathematics. I
 addTwo :: Int -> Int -> Int
 addTwo x y = x + y
 \end{lstlisting}
-The strength of this approach is the ability to partially evaluate functions. If we want a function $\bZ \to \bZ$ that returns the sum of a number and five, we write \lstinline{addTwo 5}. So \lstinline{addTwo} is a function that takes an integer and returns a function, \lstinline{addTwo 5} is a function that takes an integer and returns an integer. We say that \lstinline{addTwo 5} is a \emph{partially evaluated} function. An expression like \lstinline{addTwo 5 8} that is fully evaluated is called a \emph{term}. \par 
+The strength of this approach is the ability to partially evaluate functions. If we want a function $\bZ \to \bZ$ that returns the sum of a number and five, we write \lstinline{addTwo 5}. So \lstinline{addTwo} is a function that takes an integer and returns a function and \lstinline{addTwo 5} is a function that takes an integer and returns an integer. We say that \lstinline{addTwo 5} is a \emph{partially evaluated} function. An expression like \lstinline{addTwo 5 8} that is fully evaluated is called a \emph{term}. \par 
+Since a function can be the output of another function, it should come as no surprise that a function can also be the input to another function. Because of this, functions in Haskell are sometimes called \emph{first class citizens}. Some functions specifically call for unevaluated functions as input. These are known as \emph{higher order functions}. Higher order functions like \lstinline{map} and \lstinline{fold} are ubiquitous in languages like Haskell and are one of the nicest things about such languages. \par 
 Functional programming is not without its challenges. Since every expression is a declarative statement, the concept of iterative control must be handled differently. In C, if we wish to perform a task until a certain condition is met, it is common to use a loop to achieve this. 
 \begin{lstlisting}[language=C]
 int collatz(int n) {
@@ -410,23 +417,26 @@ collatz n
     | isEven n  = collatz (n `div` 2)
     | otherwise = collatz (3 * n + 1)
 \end{lstlisting}
-In many cases, a recursive solution is cleaner and more readable than a loop, but even the most ardent Haskeller will admit that at times, this \emph{feature} is a limitation. One challenge that arises is translating existing algorithms, which often use loops and other imperative mechanisms, into functional ones. For an example of this, see Chapter 4 of this document. 
+In many cases, a recursive solution is cleaner and more readable than a loop, but even the most ardent Haskeller will admit that at times, this \emph{feature} is a limitation. One challenge that arises is translating existing algorithms, which often use loops and other imperative mechanisms, into functional ones. For an example of this, see Chapter 4 of this document. \par 
+The Haskell language is named in honor of mathematician Haskell Curry. Curry played a pivotal role in the foundations of modern computational theory and mathematical logic. The idea of function currying is named after him. It is a bit ironic then, that the mathematical foundations of the Haskell language are rooted in a paper published in 1936 that stifled arguably the most ambitious goal of Haskell Curry's PhD advisor David Hilbert\cite{Hilbert1928}. \par 
+There are two competing models for computation commonly used today. One is the Turing machine, first described by Alan Turing\cite{Turing1937}. The other is $\lambda$-calculus, first described by Turing's PhD advisor, Alonzo Church\cite{Church1936}. Within the publications that contained the initial descriptions of these models, Church and Turing proved using their respective computational models that Hilbert's \emph{entscheidungsproblem} has no solution. According to the Church-Turing thesis, these models are mathematically equivalent\cite{Kleene1952}. The fundamental difference between these two models is that Turing machines carry state and perform sequential actions, while $\lambda$-calculus consists of statements that may be composed and evaluated, but carry no state. In short, Turing machines form the basis for imperative programming and $\lambda$-calculus forms the basis for functional programming. However, $\lambda$-calculus does not offer a full description of the Haskell language. The most important feature of Haskell not present in the (standard) $\lambda$-calculus is Haskell's type system. 
 
-\section{Types}
-% \lipsum[36-45]
+\section{Types and Kinds}
 
-\section{Kinds}
-% \lipsum[46-55]
+\section{Functors and Monads}
+
+\chapter{The Polynomial-Algorithms Package}
 
 \section{The Polynomial Type}
-% \lipsum[56-65]
-
-\chapter{Algorithms}
-% \lipsum[66-75]
 
 \section{The Division Algorithm}
-% \lipsum[76-85]
-Suppose $n$ is given and let $\bF[\mathbf x] = \bF[x_1,\dots,x_n]$. Denote the set of finite ordered lists of polynomials in $\bF[\mathbf x]$ as $[\bF[\mathbf x]]$\footnote{This notation is meant to resemble the syntax for a list in Haskell.}. If the list $G$ is in $[\bF[\mathbf x]]$, then denote the $n$th entry in $G$ as $g_n$ and let $G \setminus g_n$ refer to the list obtained by removing $g_n$ from $G$ and maintaining the relative order of the rest of $G$. Let $\emptyset \in [\bF[\mathbf x]]$ denote the empty list. Let $\p: [\bF[\mathbf x]] \times \left( \bF[\mathbf x] \times \bF[\mathbf x] \right) \to \bF[\mathbf x] \times \bF[\mathbf x]$ be the function defined as 
+A few notational conventions that we will use for this section:
+\begin{itemize}
+  \item Given a set $T$, denote the set of finite ordered lists of elements of $T$ as $[T]$\footnote{This notation is meant to resemble the syntax for a list in Haskell.}. Let $\emptyset \in [T]$ denote the empty list. 
+  \item If the list $X$ is in $[T]$, then denote the $n$th entry in $X$ as $x_n$ and let $X \setminus x_n$ refer to the list obtained by removing $x_n$ from $X$ and maintaining the relative order of the rest of $X$. 
+  \item Suppose $n$ is given and let $\bF[\mathbf x] = \bF[x_1,\dots,x_n]$. 
+\end{itemize}
+Let $\p: [\bF[\mathbf x]] \times \left( \bF[\mathbf x] \times \bF[\mathbf x] \right) \to \bF[\mathbf x] \times \bF[\mathbf x]$ be the function defined as 
 \[ \p(G,(p,r)) = \begin{cases} (p-\LT(p),r+\LT(p)) &\text{if } G = \emptyset, \\ (p-\frac{\LT(p)}{\LT(g_1)}g_1,r) &\text{if } G \ne \emptyset \and \LT(g_1) \mid \LT(p), \\ \p(G\setminus g_1,(p,r)) &\text{if } G \ne \emptyset \and \LT(g_1) \nmid \LT(p). \end{cases} \]
 Let $\psi: [\bF[\mathbf x]] \times \left( \bF[\mathbf x] \times \bF[\mathbf x] \right) \to \bF[\mathbf x]$ be the function defined as
 \[ \psi(G,(p,r)) = \begin{cases} r &\text{if } p = 0, \\ \psi(G,\p(G,(p,r))) &\text{if } p \ne 0. \end{cases} \]
@@ -434,13 +444,23 @@ Then
 \[ \overline f^{G} = \psi(G,(f,0)). \]
 
 \section{Buchberger's Algorithm}
-% \lipsum[86-95]
+Continuing with our list of notational conventions from the previous section, we add a few more:
+\begin{itemize}
+  \item If $X \in [T]$ and $t \in T$, then $X + t$ is the list $X$ with $t$ concatenated onto the end. 
+  \item If $X \in [T]$ and $Y \in [T]$, then $X + Y$ is the list $X$ with all elements of $Y$ concatenated onto the end in their given order. 
+  \item For $y \in T$ and $X \in [T]$, the product $y \times X \in [T \times T]$ is the list of tuples given by $((y,x) \mid x \in X)$ where we maintain the order in $X$. 
+  \item For $X,Y \in [T]$, the product $X \times Y \in [T \times T]$ is the list of tuples given by $((x,y) \mid x \in X, y \in Y)$ in some order. 
+  \item For a tuple $x = (f,g) \in \bF[\mathbf x] \times \bF[\mathbf x]$, we denote the $S$-polynomial $S(f,g)$ as $Sx$. 
+\end{itemize}
+Let $\p: [\bF[\mathbf x] \times \bF[\mathbf x]] \times [\bF[\mathbf x]] \to [\bF[\mathbf x]]$ be the function defined as 
+\[ \p(X,G) = \begin{cases} G &\text{if } X = \emptyset, \\ \p(X \setminus x_1,G) &\text{if } X \ne \emptyset \and \overline{Sx_1}^{G} = 0, \\ \p\left(X \setminus x_1 + (\overline{Sx_1}^{G} \times G),G + \overline{Sx_1}^{G}\right) &\text{if } X \ne \emptyset \and \overline{Sx_1}^{G} \ne 0. \end{cases} \]
+Then the function $\gb: [\bF[\mathbf x]] \to [\bF[\mathbf x]]$ defined as
+\[ \gb(F) = \begin{cases} F &\text{if } F = \p(F \times F,F), \\ \gb(\p(F \times F,F)) &\text{if } F \ne \p(F \times F,F), \end{cases} \]
+maps a list of polynomials $f_1,\dots,f_t$ to a Gr\"obner basis for $\langle f_1,\dots,f_t \rangle$.
 
 \section{Efficiency}
-% \lipsum[96-105]
 
 \chapter{Conclusion}
-% \lipsum[106-110]
 
 \bibliographystyle{amsplain}
 \bibliography{references}

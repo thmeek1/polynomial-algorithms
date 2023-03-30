@@ -1,0 +1,25 @@
+Functional Programming:
+    pure functions
+    first class citizens
+    higher order functions
+    folds
+    currying
+    recursion
+    immutable
+    lazy evaluation
+
+Haskell Curry was Hilbert's student
+lambda calculus: no state
+turing machine: state
+
+Functors and Monads:
+    functor laws
+    monad laws
+
+Algorithms:
+    stateless
+
+Conclusion:
+    Future options
+    Quantum Computing?
+    Facebook Spam filter?
