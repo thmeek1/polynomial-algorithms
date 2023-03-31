@@ -467,7 +467,7 @@ Here, the \lstinline{show} function takes a term of type \lstinline{Color} and o
 \begin{lstlisting}[language=Haskell]
 Data Color = Red | Blue | Green deriving Show
 \end{lstlisting}
-In this case, Haskell derives \lstinline{Show} just like we did manually above. \par 
+In this case, Haskell derives \lstinline{Show} just like we did manually above. Note that a type may only be an instance of a given typeclass if it is of the appropriate kind. The \lstinline{Show} typeclass is meant for types of kind \lstinline{*} so \lstinline{Color}, \lstinline{Int}, and \lstinline{Maybe String} may be instances of \lstinline{Show}, but \lstinline{Maybe} by itself cannot be. \par 
 Haskell is a statically-typed language. This means that type safety is checked at compile time, not run time. Any type-level code is evaluated at compile time, as opposed to term-level code which is evaluated at run time. This not only adds extra clarity by removing manual compatibility checks, it also increases efficiency by offloading those checks to the compiler. Even better, this can turn run time errors into compile time errors. From a debugging standpoint, this is a huge advantage.
 
 \section{Functors and Monads}
