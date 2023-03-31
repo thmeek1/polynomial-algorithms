@@ -110,7 +110,7 @@ leadMonomAsPoly f = case leadMonom f of
     Nothing -> Nothing
 
 -- | The lead term of a polynomial.
-leadTerm :: Num (Coef r) => Poly r n o -> Maybe (Poly r n o) -- TODO: Memoize this
+leadTerm :: Num (Coef r) => Poly r n o -> Maybe (Poly r n o)
 leadTerm f = (makePoly .: Map.singleton) <$> (leadMonom f) <*> (leadCoef f)
 
 -- | Determine if the lead terms of two polynomials are relatively prime.
