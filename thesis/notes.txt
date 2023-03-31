@@ -5,21 +5,36 @@ Functional Programming:
     folds
     currying
     recursion
-    immutable
+    immutable*
     lazy evaluation
+    Haskell Curry was Hilbert's student
+    lambda calculus: no state
+    turing machine: state
 
-Haskell Curry was Hilbert's student
-lambda calculus: no state
-turing machine: state
+Types and Kinds:
+    constructors
+    typeclasses*
+    simply typed lambda calculus
+    System FC
+    extensions
+    DataKinds
+    GADTS
+    Nat
+    only 1 sort*
+    statically typed
+    type level code is evaluated at compile time
+    term level code is evaluated at runtime
+    turning a runtime error into a compile time error is a win
 
 Functors and Monads:
-    functor laws
-    monad laws
+    functor is * -> * kind*
+    functor laws*
+    monad laws*
 
 Algorithms:
-    stateless
+    stateless*
 
 Conclusion:
-    Future options
-    Quantum Computing?
-    Facebook Spam filter?
+    Future options*
+    Quantum Computing?*
+    Facebook Spam filter?*

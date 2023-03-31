@@ -17,7 +17,7 @@ module DenseMonom ( Monomial
                   , totalDegree
                   ) where
 
-import GHC.TypeLits (Symbol, Nat, KnownNat)
+import GHC.TypeLits (Nat)
 import Data.Proxy (Proxy(..))
 import Data.Reflection (reflect)
 import qualified Data.Vector.Fixed as V
