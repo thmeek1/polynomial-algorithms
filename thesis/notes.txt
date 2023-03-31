@@ -27,7 +27,8 @@ Types and Kinds:
     turning a runtime error into a compile time error is a win
 
 Functors and Monads:
-    functor is * -> * kind*
+    functor is * -> * kind
+    Hask
     functor laws*
     monad laws*
 

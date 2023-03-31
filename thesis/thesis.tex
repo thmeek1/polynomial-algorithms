@@ -350,7 +350,7 @@ We won't spend much time discussing the finer points of category theory. If teac
   \cT \ar@{=>}[r]^{\eta \cT} \ar@{=>}[dr]_{1_\cT} & \cT^2 \ar@{=>}[d]^\mu & \cT \ar@{=>}[l]_{\cT\eta} \ar@{=>}[dl]^{1_\cT} \\ & \cT &
 } \]
 \end{definition}
-The reason for this definition is necessary will become apparent in Chapter 3. 
+The reason this definition is necessary will become apparent in Chapter 3. 
 
 \chapter{Functional Programming}
 Among the key features of a language like Haskell is the guarantee of functional purity. A function in Haskell does exactly one thing. It returns a value. That's it. It cannot alter the state of the program. It cannot react to external state. It cannot cause anything to happen other than returning that value. This makes a Haskell program far more predictable than any program written outside of a purely functional paradigm. This is particularly useful when writing multithreaded code. The inability for a thread to alter any resource that another thread is using simplifies the task tremendously. \par 
@@ -467,10 +467,22 @@ Here, the \lstinline{show} function takes a term of type \lstinline{Color} and o
 \begin{lstlisting}[language=Haskell]
 Data Color = Red | Blue | Green deriving Show
 \end{lstlisting}
-In this case, Haskell derives \lstinline{Show} just like we did manually above. Note that a type may only be an instance of a given typeclass if it is of the appropriate kind. The \lstinline{Show} typeclass is meant for types of kind \lstinline{*} so \lstinline{Color}, \lstinline{Int}, and \lstinline{Maybe String} may be instances of \lstinline{Show}, but \lstinline{Maybe} by itself cannot be. \par 
+In this case, Haskell derives \lstinline{Show} just like we did manually above. Note that a type may only be an instance of a given typeclass if it is of the appropriate kind. The \lstinline{Show} typeclass is meant for types of kind \lstinline{*} so \lstinline{Color}, \lstinline{Int}, and \lstinline{Maybe String} may be instances of \lstinline{Show}, but \lstinline{Maybe} by itself cannot be. When writing a function,  we may specify that one of the parameters must be an instance of some typeclass. 
+\begin{lstlisting}[language=Haskell]
+showMany :: Show a => Int -> a -> [String]
+    showMany n a = replicate n (show a)
+\end{lstlisting}
+The above function takes an \lstinline{Int} and some other term. Its output is a list of string representations of that second term. So \lstinline{showMany 3 False} would return \lstinline{["False", "False", "False"]}. The \lstinline{Show => a} expression is called a \emph{constraint}. It means that the second parameter must be an instance of the \lstinline{Show} typeclass. Without that, we couldn't guarantee that \lstinline{show a} made sense. \par 
 Haskell is a statically-typed language. This means that type safety is checked at compile time, not run time. Any type-level code is evaluated at compile time, as opposed to term-level code which is evaluated at run time. This not only adds extra clarity by removing manual compatibility checks, it also increases efficiency by offloading those checks to the compiler. Even better, this can turn run time errors into compile time errors. From a debugging standpoint, this is a huge advantage.
 
 \section{Functors and Monads}
+We said before that only types of kind \lstinline{*} may be instances of the \lstinline{Show} typeclass. Some typeclasses are meant for other kinds though. One such typeclass is \lstinline{Functor}. To be an instance of \lstinline{Functor}, a type must have the \lstinline{* -> *} kind. This means that \lstinline{Maybe} can be a \lstinline{Functor} but \lstinline{Maybe Int} cannot. The \lstinline{Show} typeclass specified that the \lstinline{show} function can work for a given type. The \lstinline{Functor} typeclass specifies the \lstinline{fmap} function. 
+\begin{lstlisting}[language=Haskell]
+instance Functor Maybe where
+    fmap _ Nothing  = Nothing
+    fmap f (Just a) = Just (f a)
+\end{lstlisting}
+The \lstinline{fmap} function has type \lstinline{Functor f => (a -> b) -> f a -> f b}. 
 
 \chapter{The Polynomial-Algorithms Package}
 
@@ -502,7 +514,7 @@ Continuing with our list of notational conventions from the previous section, we
 Let $\p: [\bF[\mathbf x] \times \bF[\mathbf x]] \times [\bF[\mathbf x]] \to [\bF[\mathbf x]]$ be the function defined as 
 \[ \p(X,G) = \begin{cases} G &\text{if } X = \emptyset, \\ \p(X \setminus x_1,G) &\text{if } X \ne \emptyset \and \overline{Sx_1}^{G} = 0, \\ \p\left(X \setminus x_1 + (\overline{Sx_1}^{G} \times G),G + \overline{Sx_1}^{G}\right) &\text{if } X \ne \emptyset \and \overline{Sx_1}^{G} \ne 0. \end{cases} \]
 Then the function $\gb: [\bF[\mathbf x]] \to [\bF[\mathbf x]]$ defined as
-\[ \gb(F) = \p(F \times F,F). \]
+\[ \gb(F) = \p(F \times F,F) \]
 maps a list of polynomials $f_1,\dots,f_t$ to a Gr\"obner basis for $\langle f_1,\dots,f_t \rangle$.
 
 \section{Efficiency}
