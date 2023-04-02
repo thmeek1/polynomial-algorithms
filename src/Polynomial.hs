@@ -46,7 +46,7 @@ newtype Polynomial :: RP.Ring -> Nat -> RP.MonOrder -> * where
 
 -- Type synonyms
 type Coef = C.Coefficient
-type Mon = M.Monomial
+type Mon  = M.Monomial
 type Poly = Polynomial
 
 makePoly :: Num (Coef r) => Map.Map (Mon n o) (Coef r) -> Poly r n o
@@ -69,14 +69,22 @@ instance (Ord (Mon n o), Readable (Mon n o), Num (Coef r), Readable (Coef r))
                . polyTupleListFromString
 
 instance (Ord (Mon n o), Num (Coef r), Arity n) => Num (Poly r n o) where
-    f + g = makePoly $ Map.unionWith (+) (monMap f) (monMap g)
-    f * g = if numTerms f < numTerms g then f `leftPolyMult` g else g `leftPolyMult` f
-        where f `leftPolyMult` g = Map.foldlWithKey (distributeOver g) 0 (monMap f)
-              distributeOver g p m c = p + (leftMultWithCoef m c g)
-    abs = id
-    signum _ = 1
-    fromInteger n = makePoly $ Map.singleton mempty (fromInteger n)
-    negate = makePoly . Map.map negate . monMap
+    f + g           = makePoly $ Map.unionWith (+) (monMap f) (monMap g)
+    f * g           = f `polyMult` g
+    abs             = id
+    signum _        = 1
+    fromInteger n   = makePoly $ Map.singleton mempty (fromInteger n)
+    negate          = makePoly . Map.map negate . monMap
+
+{- Multiply two polynomials. Since we are using a foldl, it is faster to
+put the one with fewer terms on the left. -}
+polyMult :: (Ord (Mon n o), Num (Coef r), Arity n)
+            => Poly r n o -> Poly r n o -> Poly r n o
+f `polyMult` g = if numTerms f < numTerms g
+                 then f `leftPolyMult` g
+                 else g `leftPolyMult` f where
+    f `leftPolyMult` g     = Map.foldlWithKey (distributeOver g) 0 (monMap f)
+    distributeOver g p m c = p + (leftMultWithCoef m c g)
 
 -- | Returns a monomial as a single term polynomial.
 asPoly :: Num (Coef r) => Mon n o -> Poly r n o

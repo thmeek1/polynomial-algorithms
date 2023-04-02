@@ -39,17 +39,17 @@ lexCompare :: Mon n o -> Mon n o -> Ordering
 a `lexCompare` b = (degList a) `compList` (degList b) where
     degList = IMap.assocs . degMap
 
-revLexCompare :: Mon n o -> Mon n o -> Ordering
+revLexCompare :: Mon n o -> Mon n o -> Ordering-- TODO: Fix bug!
 a `revLexCompare` b = (revList b) `compList` (revList a) where
     revList = reverse . IMap.assocs . degMap
 
 compList :: [(Int,Int)] -> [(Int,Int)] -> Ordering
 compList [] [] = EQ
-compList _ [] = GT
-compList [] _ = LT
+compList _  [] = GT
+compList [] _  = LT
 compList ((n1,e1):vars1) ((n2,e2):vars2)
-    | n1 /= n2 = n2 `compare` n1
-    | e1 /= e2 = e1 `compare` e2
+    | n1 /= n2  = n2 `compare` n1
+    | e1 /= e2  = e1 `compare` e2
     | otherwise = vars1 `compList` vars2
 
 {--
@@ -76,15 +76,15 @@ instance Ord (Mon n RP.Lex) where
 
 instance Ord (Mon n RP.GLex) where
     a `compare` b = let aVb = (totalDegree a) `compare` (totalDegree b)
-                  in  if aVb == EQ
-                      then a `lexCompare` b
-                      else aVb
+                    in  if aVb == EQ
+                        then a `lexCompare` b
+                        else aVb
 
 instance Ord (Mon n RP.GRevLex) where
     a `compare` b = let aVb = (totalDegree a) `compare` (totalDegree b)
-                  in  if aVb == EQ
-                      then a `revLexCompare` b
-                      else aVb
+                    in  if aVb == EQ
+                        then a `revLexCompare` b
+                        else aVb
 
 instance Arity n => Show (Mon n o) where
     show = monListToString . multiDegree
@@ -106,10 +106,10 @@ a `coprime` b = a `gcdMon` b == mempty
 -- | Determines if the first argument divides the second argument
 divides :: Mon n o -> Mon n o -> Bool
 a `divides` b = all (`varDivides` (degList b)) (degList a) where
-    degList = IMap.assocs . degMap
+    degList         = IMap.assocs . degMap
     varDivides _ [] = False
     varDivides (n1,e1) ((n2,e2):vars)
-        | n1 > n2 = varDivides (n1,e1) vars
+        | n1 > n2   = varDivides (n1,e1) vars
         | otherwise = n1 == n2 && e1 <= e2
 
 -- | Given monomials b and a, returns a monomial d such that b = ad
@@ -132,9 +132,9 @@ fromList = makeMon . IMap.fromList . zip [1..]
 -- | A list of the exponents of the variables in a monomial
 multiDegree :: forall n o. Arity n => Mon n o -> [Int]
 multiDegree = rpad nn . IMap.foldlWithKey acc [] . degMap where
-    acc lst k exp = rpad (k-1) lst ++ [exp]
-    nn = (fromInteger . reflect) (Proxy :: Proxy n)
-    rpad m xs = take m $ xs ++ repeat 0
+    acc lst k exp   = rpad (k-1) lst ++ [exp]
+    nn              = (fromInteger . reflect) (Proxy :: Proxy n)
+    rpad m xs       = take m $ xs ++ repeat 0
 
 -- | The sum of the exponents of the variables in a monomial
 totalDegree :: Mon n o -> Int

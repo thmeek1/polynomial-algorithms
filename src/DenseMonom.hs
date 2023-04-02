@@ -45,8 +45,8 @@ instance V.Arity n => Ord (Mon n RP.GLex) where
 
 instance V.Arity n => Ord (Mon n RP.GRevLex) where
     compare a b = let aVb = compare (totalDegree a) (totalDegree b)
-                      a' = V.reverse $ degVec a
-                      b' = V.reverse $ degVec b
+                      a'  = V.reverse $ degVec a
+                      b'  = V.reverse $ degVec b
                   in  if aVb == EQ
                       then compare b' a'
                       else aVb
