@@ -19,6 +19,7 @@ data Coefficient :: RP.Ring -> * where
     Zero    :: Coefficient r
     FTwo    :: Integer -> Coefficient r
     FThree  :: Integer -> Coefficient r
+    FFive   :: Integer -> Coefficient r
     deriving Eq
 
 -- Type synonyms
@@ -26,6 +27,7 @@ type Q      = Coefficient RP.Q
 type Zero   = Coefficient RP.Zero
 type FTwo   = Coefficient RP.FTwo
 type FThree = Coefficient RP.FThree
+type FFive  = Coefficient RP.FFive
 
 instance Show Q where
     show (Q r) = ratToString r
@@ -104,3 +106,25 @@ instance Fractional FThree where
 
 instance Readable FThree where
     fromString = FThree . read
+
+instance Show FFive where
+    show (FFive n) = show n
+
+instance Num FFive where
+    (FFive n) + (FFive m)   = FFive ((n + m) `mod` 5)
+    (FFive n) - (FFive m)   = FFive ((n - m) `mod` 5)
+    (FFive n) * (FFive m)   = FFive ((n * m) `mod` 5)
+    abs (FFive n)           = FFive (abs n)
+    signum (FFive n)        = FFive (signum n)
+    fromInteger n           = FFive $ n `mod` 5
+
+instance Fractional FFive where
+    recip 0        = error "Cannot divide by zero."
+    recip 1        = FFive 1
+    recip 2        = FFive 3
+    recip 3        = FFive 2
+    recip 4        = FFive 4
+    fromRational a = fromInteger (numerator a) * recip (fromInteger (denominator a))
+
+instance Readable FFive where
+    fromString = FFive . read
