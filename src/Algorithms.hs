@@ -28,24 +28,24 @@ type Poly = P.Polynomial
 longDiv :: (Ord (Mon n o), Fractional (Coef r), Arity n)
            => Poly r n o -> [Poly r n o] -> ([Poly r n o], Poly r n o)
 longDiv f gs = outerLoop gs (f, replicate (length gs) 0, 0) where
-    outerLoop _ (0, qs, r) = (qs, r)
-    outerLoop gs (p, qs, r) = outerLoop gs $ innerLoop gs (p, qs, r)
-    innerLoop [] (p, qs, r) = (P.dropLeadTerm p, qs, rUpdate p r)
-    innerLoop gs (p, qs, r) = if (head gs) `P.leadTermDivs` p
-                              then (pUpdate p (head gs),
-                                    qUpdate p (head gs) qs (length qs - length gs), r)
-                              else innerLoop (tail gs) (p, qs, r)
+    outerLoop _gs (0, qs, r) = (qs, r)
+    outerLoop  gs (p, qs, r) = outerLoop gs $ innerLoop gs (p, qs, r)
+    innerLoop  [] (p, qs, r) = (P.dropLeadTerm p, qs, rUpdate p r)
+    innerLoop  gs (p, qs, r) = if (head gs) `P.leadTermDivs` p
+                               then (pUpdate p (head gs),
+                                     qUpdate p (head gs) qs (length qs - length gs), r)
+                               else innerLoop (tail gs) (p, qs, r)
 
 -- | Returns the remainder of the first argument upon division by the second.
 reduce :: (Ord (Mon n o), Fractional (Coef r), Arity n)
           => Poly r n o -> [Poly r n o] -> Poly r n o
 reduce f gs = outerLoop gs (f, 0) where
-    outerLoop _ (0, r) = r
-    outerLoop gs (p, r) = outerLoop gs $ innerLoop gs (p,r)
-    innerLoop [] (p,r) = (P.dropLeadTerm p, rUpdate p r)
-    innerLoop gs (p,r) = if (head gs) `P.leadTermDivs` p
-                         then (pUpdate p (head gs), r)
-                         else innerLoop (tail gs) (p,r)
+    outerLoop _gs (0, r) = r
+    outerLoop  gs (p, r) = outerLoop gs $ innerLoop gs (p,r)
+    innerLoop  [] (p,r)  = (P.dropLeadTerm p, rUpdate p r)
+    innerLoop  gs (p,r)  = if (head gs) `P.leadTermDivs` p
+                           then (pUpdate p (head gs), r)
+                           else innerLoop (tail gs) (p,r)
 
 -- p := p − (LT(p)/LT(g))*g
 pUpdate :: (Ord (Mon n o), Fractional (Coef r), Arity n)

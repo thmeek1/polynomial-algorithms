@@ -13,7 +13,7 @@ Functional Programming:
 
 Types and Kinds:
     constructors
-    typeclasses*
+    typeclasses
     simply typed lambda calculus
     System FC
     extensions
@@ -28,12 +28,22 @@ Types and Kinds:
 
 Functors and Monads:
     functor is * -> * kind
+    functor laws
+    maybe functor
     Hask
-    functor laws*
-    monad laws*
+    applicative
+    maybe applicative
+    monad laws
+    maybe monad
+    join
+    laws with join
+    maybe join*
+    diagrams*
+    examples other than Maybe*
 
 Algorithms:
     stateless*
+    Bonus benefit: the weirdness with = vs := vs == goes away.
 
 Conclusion:
     Future options*
