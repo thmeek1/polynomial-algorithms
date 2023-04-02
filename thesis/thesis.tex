@@ -368,7 +368,11 @@ We won't spend much time discussing the finer points of category theory. If teac
 } \qquad\qquad \SelectTips{cm}{}\xymatrix@R+1pc@C+1pc{
   \cT \ar@{=>}[r]^{\eta \cT} \ar@{=>}[dr]_{1_\cT} & \cT^2 \ar@{=>}[d]^\mu & \cT \ar@{=>}[l]_{\cT\eta} \ar@{=>}[dl]^{1_\cT} \\ & \cT &
 } \]
-\end{definition}%TODO: Example?
+\end{definition}
+In these diagrams, $\cT\eta,\eta\cT: T \Rightarrow T^2$ are defined as 
+\[ (\cT\eta)_x = \cT(\eta_x) \qquad\and\qquad (\eta\cT)_x = \eta_{\cT x}, \]
+and $\cT\mu,\mu\cT: T^3 \Rightarrow T^2$ are defined as 
+\[ (\cT\mu)_x = \cT(\mu_x) \qquad\and\qquad (\mu\cT)_x = \mu_{\cT x}. \]%TODO: Example?
 The reason for this definition will become apparent in Chapter 3. 
 
 \chapter{Functional Programming}
@@ -528,7 +532,7 @@ So an instance of \lstinline{Functor} consists of two things:
   \item a type constructor that maps a type \lstinline{a} to another type \lstinline{f a}, and
   \item a way to map functions of type \lstinline{a -> b} to functions of type \lstinline{f a -> f b},
 \end{itemize}
-and to be a true functor, the data above must preserve the identity and preserve function composition. If this does not sound familiar to the reader, then perhaps they should review the last section of Chapter 2. The \lstinline{Functor} typeclass seems to be specifying that the type constructor and \lstinline{fmap} functions of a type form a functor between some categories. Indeed, this is where \lstinline{Functor} gets its name. But what categories are we dealing with? The type constructor is a map from a Haskell type to another Haskell type and \lstinline{fmap} is a map from Haskell functions to other Haskell functions. Do these form a category though? Could we build a category where the objects are Haskell types and the morphisms are the functions between those types? It turns out that we cannot. Not completely anyway. The majority of the problems come from \lstinline{undefined} values and functions that do not terminate. These are certainly a part of Haskell and must be accounted for. However, if we ignore these complications as well as a few other problems and only pay attention to a nice subset of the types and functions of Haskell, then we may proceed with defining a category. 
+and to be a true functor, the data above must preserve the identity and preserve function composition. If this does not sound familiar to the reader, then perhaps they should review the last section of Chapter 2. The \lstinline{Functor} typeclass seems to be specifying that the type constructor and \lstinline{fmap} functions of a type form a functor between some categories. Indeed, this is where \lstinline{Functor} gets its name. But what categories are we dealing with? The type constructor is a map from a Haskell type to another Haskell type and \lstinline{fmap} is a map from Haskell functions to other Haskell functions. Do these form a category though? Could we build a category where the objects are Haskell types and the morphisms are the functions between those types? It turns out that we cannot. Not completely anyway. The majority of the problems come from \lstinline{undefined} values and functions that do not terminate. These are certainly a part of Haskell and must be accounted for. However, if we ignore these complications as well as a few other problems, then we may proceed with defining a category. 
 \begin{definition}
   The category $\Hask$ has the types of Haskell as its objects. For types $t$ and $s$, the set $\Hom(t,s)$ consists of the functions from $t$ to $s$. 
 \end{definition}
@@ -539,39 +543,39 @@ class Functor f => Applicative f where
     pure  :: a -> f a
     (<*>) :: f (a -> b) -> f a -> f b
 \end{lstlisting}
-The \lstinline{pure} function is special way to map a regular term to a functorial term without doing anything else. The \lstinline{<*>} operator is a way to map a functorial function to a function of functorial terms. Note that in Haskell syntax, when defining a function with non-alphanumeric characters surrounded by parentheses, that function is used infix and we call it an operator. Sticking with our running example, lets see how the \lstinline{Maybe} functor is applicative. 
+The \lstinline{pure} function is a special way to map a regular term to a functorial term without doing anything else. The \lstinline{<*>} operator is a way to map a functorial function to a function of functorial terms. Note that in Haskell syntax, when defining a function with non-alphanumeric characters surrounded by parentheses, that function is used infix and we call it an operator. Sticking with our running example, lets see how the \lstinline{Maybe} functor is applicative. 
 \begin{lstlisting}[language=Haskell]
 instance Applicative Maybe where
     pure          = Just
     Just f  <*> m = fmap f m
     Nothing <*> m = Nothing
 \end{lstlisting}
-There are several applicative laws that should be satisfied in addition to the functor laws. 
+There are several \emph{applicative laws} that should be satisfied in addition to the functor laws. 
 \begin{lstlisting}[language=Haskell]
 pure id <*> v = v
 pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
 pure f <*> pure x = pure (f x)
 u <*> pure y = pure ($ y) <*> u
 \end{lstlisting}
-For an explanation of these laws, see the documentation \cite{Prelude}. The reason for defining applicative functors here is so that we may discuss a very special applicative functor with a familiar name. \par 
+In the above, \lstinline{(.)} is function composition and \lstinline{($)} is function application. For an explanation of these laws, see the documentation \cite{Prelude}. The reason for defining applicative functors here is so that we may discuss a very special applicative functor with a familiar name. \par 
 We ended Chapter 2 by introducing an odd categorical construction. An endofunctor $\cT: \sC \to \sC$ equipped with two natural transformations $\eta: 1_\sC \Rightarrow \cT$ and $\mu: \cT^2 \Rightarrow \cT$ that satisfied a pair of commutative diagrams. We called this functor a \emph{monad}. Monads are important enough in their native domain of category theory, but where they really shine is in the realm of functional programming. In Haskell, \lstinline{Monad} is a typeclass that may be implemented on an applicative functor. Instances of \lstinline{Monad} are monads on the category $\Hask$. 
 \begin{lstlisting}[language=Haskell]
 class Applicative m => Monad m where
     (>>=)   :: m a -> (a -> m b) -> m b
     (>>)    :: m a -> m b -> m b
     return  :: a -> m a
-    m >> k  = m >>= \_ -> k
+    m >> k  = m >>= \x -> k
     return  = pure
 \end{lstlisting}
 The \lstinline{Monad} typeclass specifies three functions, \lstinline{>>=}, \lstinline{>>}, and \lstinline{return}. Note that two of these functions are defined in the \lstinline{class} definition. Those are defalut implementations. They may be overridden, but in the case of \lstinline{Monad}, they rarely are. The \lstinline{return} function is equivalent to \lstinline{pure}. The \lstinline{>>} function is rarely used, so we will not discuss it here. The important one of this bunch is the one that does not have a default implementation, \lstinline{>>=}. This is called the \emph{bind} operator. \par 
 In a less abstract sense, a monad, and to a lesser extent, any functor, may be thought of as a \emph{computational context}. The bind operator takes a value of type \lstinline{a} that is already in some context \lstinline{m} and a function of type \lstinline{a -> m b} that maps standard values to contextualized values. Its output is the image of the decontextualized value under that function. The context here could be almost anything. Lists are monads whose computational context is that there are more than one terms of a given type. The \lstinline{Maybe} functor is a monad where the computational context is that any term may or may not exist. When Haskellers are writing software, it is usually more insightful to think of monads this way than as endofunctors and natural transformations on the category $\Hask$. \par 
-Since all monads are applicative functors and all applicative functors are functors, monads should obey the functor laws and the applicative laws. In addition, there are three more laws a monad should obey. These are the monad laws.
+Since all monads are applicative functors and all applicative functors are functors, monads should obey the functor laws and the applicative laws. In addition, there are three more laws a monad should obey. These are the \emph{monad laws}.
 \begin{lstlisting}[language=Haskell]
 return x >>= f = f x
 m >>= return = m
 m >>= (\x -> f x >>= g) = (m >>= f) >>= g
 \end{lstlisting}
-The first monad law states that if we take a value, put it in a default context with \lstinline{return} and then feed it to a function by using \lstinline{>>=}, it's the same as just taking the value and applying the function to it. The second law states that if we have a monadic value and we use \lstinline{>>=} to feed it to \lstinline{return}, the result is our original monadic value. The final monad law says that when we have a chain of monadic function applications with \lstinline{>>=}, it shouldn't matter how they're nested \cite{Lipovaca2011}. \par 
+The first monad law states that if we take a value, put it in a default context with \lstinline{return} and then feed it to a function by using bind, it's the same as just taking the value and applying the function to it. The second law states that if we have a monadic value and we use bind to feed it to \lstinline{return}, the result is our original monadic value. The final monad law says that when we have a chain of monadic function applications with bind, it shouldn't matter how they're nested \cite{Lipovaca2011}. \par 
 We mentioned that \lstinline{Maybe} is a monad. Let's take a look at its implementation. 
 \begin{lstlisting}[language=Haskell]
 instance Monad Maybe where
@@ -585,19 +589,46 @@ The \lstinline{return} function is just the unit natural transformation $\eta$, 
 join :: (Monad m) => m (m a) -> m a
 join x = x >>= id
 \end{lstlisting}
-It turns out one could define a monad using \lstinline{join} instead of bind and then define bind using join. This method is equivalent to the standard approach. In fact, the developers of Haskell tried fairly recently to include \lstinline{join} in the definition for \lstinline{Monad} and allow developers the option of defining either \lstinline{join} or \lstinline{bind} when creating a \lstinline{Monad} instance. Unfortunately, due to some technical limitations, this is not currently possible, though there have been more recent attempts to fix this problem \cite{Scott2018}. \par 
+It turns out one could define a monad using \lstinline{join} instead of bind and then define bind using join. This method is equivalent to the standard approach. In fact, the developers of Haskell tried fairly recently to include \lstinline{join} in the definition for \lstinline{Monad} and allow developers the option of defining either \lstinline{join} or bind when creating a \lstinline{Monad} instance. Unfortunately, due to some technical limitations, this is not currently possible, though there have been more recent attempts to fix this problem \cite{Scott2018}. If this technical problem were overcome, we could redefine the maybe typeclass as 
+\begin{lstlisting}[language=Haskell]
+class Applicative m => Monad m where
+    (>>=)   :: m a -> (a -> m b) -> m b
+    join    :: (Monad m) => m (m a) -> m a
+    (>>)    :: m a -> m b -> m b
+    return  :: a -> m a
+    x >>= f = join (fmap f x)
+    join x  = x >>= id
+    m >> k  = m >>= \x -> k
+    return  = pure
+\end{lstlisting}
+In this definition, since bind and \lstinline{join} are each defined in terms of the other, a user need only define one of them and they get the other for free. \par 
 We can also reformulate our monad laws using \lstinline{join} and \lstinline{fmap} instead of bind. 
 \begin{lstlisting}[language=Haskell]
 join . return = id
 join . fmap return = id
 join . fmap join = join . join
 \end{lstlisting}
-
-% A relationship that always holds between bind and \lstinline{join} is 
-% \begin{lstlisting}[language=Haskell]
-% x >>= f = join (fmap f x)
-% \end{lstlisting}
-% which can be quite useful when deciding how best to implement bind on a \lstinline{Monad} instance in a case where \lstinline{join} is easier to define.
+In categorical terms, \lstinline{join} is the $\mu$ transformation we wanted. For a functor $\cT$ and a type \lstinline{a}, $\mu$ gives us a function from the type $\cT^2 a$ to the type $\cT a$. The first monad law expressed with \lstinline{join} says that the following diagram commutes:
+\[ \SelectTips{cm}{}\xymatrix@R+1pc@C+1pc{
+  \cT \ar@{=>}[r]^{\eta \cT} \ar@{=>}[dr]_{1_\cT} & \cT^2 \ar@{=>}[d]^\mu \\ & \cT
+} \]
+The second monad law says that this diagram commutes:
+\[ \SelectTips{cm}{}\xymatrix@R+1pc@C+1pc{
+  \cT^2 \ar@{=>}[d]^\mu & \cT \ar@{=>}[l]_{\cT\eta} \ar@{=>}[dl]^{1_\cT} \\ \cT &
+} \]
+The third monad law says that this final diagram commutes:
+\[ \SelectTips{cm}{}\xymatrix@R+1pc@C+1pc{
+  \cT^3 \ar@{=>}[r]^{\cT\mu} \ar@{=>}[d]_{\mu \cT} & \cT^2 \ar@{=>}[d]^\mu \\ \cT^2 \ar@{=>}[r]_\mu & \cT
+} \]
+So using \lstinline{join} to define a monad instead of bind makes the parallels to category theory much more explicit. To complete our running example, let's see how \lstinline{Maybe} would be defined with \lstinline{join} instead of bind.
+\begin{lstlisting}[language=Haskell]
+instance Monad Maybe where
+    join (Just (Just x)) = Just x
+    join _ = Nothing
+\end{lstlisting}
+The \lstinline{_} is a place holder. It means that any expression that doesn't look like the first one will evaluate to \lstinline{Nothing}. \par 
+A \lstinline{Monad} comes equipped with three functions. \lstinline{return} puts an expression into some computational context, \lstinline{join} reduces the nested level of context by one, and bind is a mixture of both that ends up being quite useful in practice. We mentioned before that lists as well as \lstinline{Maybe} functors are monads, but there are many more examples, like \lstinline{Either}, \lstinline{State}, and \lstinline{IO}. That's right. Any \lstinline{IO} operation in Haskell is a monad. Even printing to the screen. \par 
+Encapsulating all computational contexts in monads makes the codebase safer and cleaner and encourages composition in a way that imperative programming can't compete with. However, this method of doing things is quite unfamiliar to most programmers. That is one of the reasons it is so important to explore functional solutions to problems where currently only imperative solutions exist. In the next chapter, we will discuss one such solution. 
 
 \chapter{The Polynomial-Algorithms Package}
 
