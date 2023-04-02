@@ -15,16 +15,16 @@ import PolyParsers (Readable(..), ratFromString, ratToString)
 
 -- | A coefficient in a polynomial ring
 data Coefficient :: RP.Ring -> * where
-    Q :: Rational -> Coefficient r
-    Zero :: Coefficient r
-    FTwo :: Integer -> Coefficient r
-    FThree :: Integer -> Coefficient r
+    Q       :: Rational -> Coefficient r
+    Zero    :: Coefficient r
+    FTwo    :: Integer -> Coefficient r
+    FThree  :: Integer -> Coefficient r
     deriving Eq
 
 -- Type synonyms
-type Q = Coefficient RP.Q
-type Zero = Coefficient RP.Zero
-type FTwo = Coefficient RP.FTwo
+type Q      = Coefficient RP.Q
+type Zero   = Coefficient RP.Zero
+type FTwo   = Coefficient RP.FTwo
 type FThree = Coefficient RP.FThree
 
 instance Show Q where
@@ -52,19 +52,19 @@ instance Show Zero where
     show _ = show RP.Zero
 
 instance Num Zero where
-    a + b         = Zero
-    a - b         = Zero
-    a * b         = Zero
-    abs a         = Zero
-    signum a      = Zero
-    fromInteger n = Zero
+    _ + _         = Zero
+    _ - _         = Zero
+    _ * _         = Zero
+    abs _         = Zero
+    signum _      = Zero
+    fromInteger _ = Zero
 
 instance Fractional Zero where
-    recip a        = error "Cannot divide by zero."
-    fromRational a = Zero
+    recip _        = error "Cannot divide by zero."
+    fromRational _ = Zero
 
 instance Readable Zero where
-    fromString s = Zero
+    fromString _ = Zero
 
 instance Show FTwo where
     show (FTwo n) = show n
@@ -73,11 +73,12 @@ instance Num FTwo where
     (FTwo n) + (FTwo m) = FTwo ((n + m) `mod` 2)
     (FTwo n) - (FTwo m) = FTwo ((n - m) `mod` 2)
     (FTwo n) * (FTwo m) = FTwo ((n * m) `mod` 2)
-    abs (FTwo n)     = FTwo (abs n)
-    signum (FTwo n)  = FTwo (signum n)
-    fromInteger n = FTwo $ n `mod` 2
+    abs (FTwo n)        = FTwo (abs n)
+    signum (FTwo n)     = FTwo (signum n)
+    fromInteger n       = FTwo $ n `mod` 2
 
 instance Fractional FTwo where
+    recip 0        = error "Cannot divide by zero."
     recip 1        = FTwo 1
     fromRational a = fromInteger (numerator a) * recip (fromInteger (denominator a))
 
@@ -91,11 +92,12 @@ instance Num FThree where
     (FThree n) + (FThree m) = FThree ((n + m) `mod` 3)
     (FThree n) - (FThree m) = FThree ((n - m) `mod` 3)
     (FThree n) * (FThree m) = FThree ((n * m) `mod` 3)
-    abs (FThree n)     = FThree (abs n)
-    signum (FThree n)  = FThree (signum n)
-    fromInteger n = FThree $ n `mod` 3
+    abs (FThree n)          = FThree (abs n)
+    signum (FThree n)       = FThree (signum n)
+    fromInteger n           = FThree $ n `mod` 3
 
 instance Fractional FThree where
+    recip 0        = error "Cannot divide by zero."
     recip 1        = FThree 1
     recip 2        = FThree 2
     fromRational a = fromInteger (numerator a) * recip (fromInteger (denominator a))
