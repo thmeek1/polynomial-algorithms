@@ -16,6 +16,7 @@ type R = P.Polynomial RP.Q 2 RP.GLex
 type S = P.Polynomial RP.Q 4 RP.GRevLex
 type T = P.Polynomial RP.Q 5 RP.Lex
 type U = P.Polynomial RP.Q 3 RP.GLex
+ --TODO: Fix Bug. Dense and Sparse are different with GRevLex!
 
 main :: IO ()
 main = do
