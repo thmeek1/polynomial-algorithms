@@ -37,13 +37,13 @@ Functors and Monads:
     maybe monad
     join
     laws with join
-    maybe join*
-    diagrams*
-    examples other than Maybe*
+    maybe join
+    diagrams
+    examples other than Maybe
 
 Algorithms:
     stateless*
-    Bonus benefit: the weirdness with = vs := vs == goes away.
+    Bonus benefit: the weirdness with = vs := vs == goes away.*
 
 Conclusion:
     Future options*
