@@ -62,8 +62,8 @@ instance V.Arity n => Monoid (Mon n o) where
         where nn = (fromInteger . reflect) (Proxy :: Proxy n)
 
 instance V.Arity n => Readable (Mon n o) where
-    fromString = MakeMon . V.fromList' . monListFromString nn
-        where nn = (fromInteger . reflect) (Proxy :: Proxy n)
+    fromString = MakeMon . V.fromList' . monListFromString nn where
+        nn = (fromInteger . reflect) (Proxy :: Proxy n)
 
 -- | Determine if two monomials are relatively prime.
 coprime :: V.Arity n => Mon n o -> Mon n o -> Bool
@@ -75,8 +75,8 @@ a `divides` b = V.and $ V.zipWith (<=) (degVec a) (degVec b)
 
 -- | Given monomials a and b, returns a monomial d such that a = bd
 divideBy :: V.Arity n => Mon n o -> Mon n o -> Maybe (Mon n o)
-divideBy a b = if V.any (< 0) diff then Nothing else Just (MakeMon diff)
-    where diff = V.zipWith (-) (degVec a) (degVec b)
+divideBy a b = if V.any (< 0) diff then Nothing else Just (MakeMon diff) where
+    diff = V.zipWith (-) (degVec a) (degVec b)
 
 -- | Creates a monomial from a list of exponents.
 fromList :: V.Arity n => [Int] -> Mon n o

@@ -173,12 +173,12 @@ scaleMon c m = makePoly $ Map.singleton m c
 -- | The S-polynomial, or overlap relation, of two given polynomials.
 sPoly :: (Ord (Mon n o), Fractional (Coef r), Arity n)
          => Poly r n o -> Poly r n o -> Maybe (Poly r n o)
-sPoly f g = (-) <$> redf <*> redg
-    where lcm = M.lcmMon <$> leadMonom f <*> leadMonom g
-          fNormalizer = divideByLeadTerm <$> fmap asPoly lcm <*> leadTerm f >>= id
-          gNormalizer = divideByLeadTerm <$> fmap asPoly lcm <*> leadTerm g >>= id
-          redf = (*) <$> fNormalizer <*> Just f
-          redg = (*) <$> gNormalizer <*> Just g
+sPoly f g = (-) <$> redf <*> redg where
+    lcm = M.lcmMon <$> leadMonom f <*> leadMonom g
+    fNormalizer = divideByLeadTerm <$> fmap asPoly lcm <*> leadTerm f >>= id
+    gNormalizer = divideByLeadTerm <$> fmap asPoly lcm <*> leadTerm g >>= id
+    redf = (*) <$> fNormalizer <*> Just f
+    redg = (*) <$> gNormalizer <*> Just g
 
 -- | The sum of the exponents of the variables in the lead monomial.
 totalDegree :: Arity n => Poly r n o -> Maybe Int
@@ -198,6 +198,6 @@ f `divideByMon` m = pmapM (`M.divideBy` m) f
 -- | Divides a polynomial by the lead term of another polynomial
 divideByLeadTerm :: (Ord (Mon n o), Fractional (Coef r), Arity n)
                        => Poly r n o -> Poly r n o -> Maybe (Poly r n o)
-f `divideByLeadTerm` g = scaleDown <$> (leadCoef g) <*> q
-    where scaleDown c = scale (recip c)
-          q = leadMonom g >>= (f `divideByMon`)
+f `divideByLeadTerm` g = scaleDown <$> (leadCoef g) <*> q where
+    scaleDown c = scale (recip c)
+    q = leadMonom g >>= (f `divideByMon`)

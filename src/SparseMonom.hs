@@ -36,12 +36,12 @@ makeMon :: IMap.IntMap Int -> Mon n o
 makeMon = MakeMon . IMap.filterWithKey (\_ exp -> exp /= 0)
 
 lexCompare :: Mon n o -> Mon n o -> Ordering
-a `lexCompare` b = (degList a) `compList` (degList b)
-    where degList = IMap.assocs . degMap
+a `lexCompare` b = (degList a) `compList` (degList b) where
+    degList = IMap.assocs . degMap
 
 revLexCompare :: Mon n o -> Mon n o -> Ordering
-a `revLexCompare` b = (revList b) `compList` (revList a)
-    where revList = reverse . IMap.assocs . degMap
+a `revLexCompare` b = (revList b) `compList` (revList a) where
+    revList = reverse . IMap.assocs . degMap
 
 compList :: [(Int,Int)] -> [(Int,Int)] -> Ordering
 compList [] [] = EQ
@@ -96,8 +96,8 @@ instance Monoid (Mon n o) where
     mempty = MakeMon $ IMap.empty
 
 instance Arity n => Readable (Mon n o) where
-    fromString = makeMon . monMapFromString nn
-        where nn = (fromInteger . reflect) (Proxy :: Proxy n)
+    fromString = makeMon . monMapFromString nn where
+        nn = (fromInteger . reflect) (Proxy :: Proxy n)
 
 -- | Determine if two monomials are relatively prime.
 coprime :: Mon n o -> Mon n o -> Bool
@@ -105,17 +105,17 @@ a `coprime` b = a `gcdMon` b == mempty
 
 -- | Determines if the first argument divides the second argument
 divides :: Mon n o -> Mon n o -> Bool
-a `divides` b = all (`varDivides` (degList b)) (degList a)
-    where degList = IMap.assocs . degMap
-          varDivides _ [] = False
-          varDivides (n1,e1) ((n2,e2):vars)
-              | n1 > n2 = varDivides (n1,e1) vars
-              | otherwise = n1 == n2 && e1 <= e2
+a `divides` b = all (`varDivides` (degList b)) (degList a) where
+    degList = IMap.assocs . degMap
+    varDivides _ [] = False
+    varDivides (n1,e1) ((n2,e2):vars)
+        | n1 > n2 = varDivides (n1,e1) vars
+        | otherwise = n1 == n2 && e1 <= e2
 
 -- | Given monomials b and a, returns a monomial d such that b = ad
 divideBy :: Mon n o -> Mon n o -> Maybe (Mon n o)
-b `divideBy` a = if a `divides` b then Just (makeMon diff) else Nothing
-    where diff = IMap.unionWith (-) (degMap b) (degMap a)
+b `divideBy` a = if a `divides` b then Just (makeMon diff) else Nothing where
+    diff = IMap.unionWith (-) (degMap b) (degMap a)
 
 -- | The GCD of two monomials
 gcdMon :: Mon n o -> Mon n o -> Mon n o
@@ -131,10 +131,10 @@ fromList = makeMon . IMap.fromList . zip [1..]
 
 -- | A list of the exponents of the variables in a monomial
 multiDegree :: forall n o. Arity n => Mon n o -> [Int]
-multiDegree = rpad nn . IMap.foldlWithKey acc [] . degMap
-    where acc lst k exp = rpad (k-1) lst ++ [exp]
-          nn = (fromInteger . reflect) (Proxy :: Proxy n)
-          rpad m xs = take m $ xs ++ repeat 0
+multiDegree = rpad nn . IMap.foldlWithKey acc [] . degMap where
+    acc lst k exp = rpad (k-1) lst ++ [exp]
+    nn = (fromInteger . reflect) (Proxy :: Proxy n)
+    rpad m xs = take m $ xs ++ repeat 0
 
 -- | The sum of the exponents of the variables in a monomial
 totalDegree :: Mon n o -> Int
