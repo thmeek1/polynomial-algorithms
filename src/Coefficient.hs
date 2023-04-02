@@ -82,7 +82,9 @@ instance Num FTwo where
 instance Fractional FTwo where
     recip 0        = error "Cannot divide by zero."
     recip 1        = FTwo 1
-    fromRational a = fromInteger (numerator a) * recip (fromInteger (denominator a))
+    fromRational n = p * recip q where
+        p = fromInteger (numerator n)
+        q = fromInteger (denominator n)
 
 instance Readable FTwo where
     fromString = FTwo . read
@@ -102,7 +104,9 @@ instance Fractional FThree where
     recip 0        = error "Cannot divide by zero."
     recip 1        = FThree 1
     recip 2        = FThree 2
-    fromRational a = fromInteger (numerator a) * recip (fromInteger (denominator a))
+    fromRational n = p * recip q where
+        p = fromInteger (numerator n)
+        q = fromInteger (denominator n)
 
 instance Readable FThree where
     fromString = FThree . read
@@ -124,7 +128,9 @@ instance Fractional FFive where
     recip 2        = FFive 3
     recip 3        = FFive 2
     recip 4        = FFive 4
-    fromRational a = fromInteger (numerator a) * recip (fromInteger (denominator a))
+    fromRational n = p * recip q where
+        p = fromInteger (numerator n)
+        q = fromInteger (denominator n)
 
 instance Readable FFive where
     fromString = FFive . read

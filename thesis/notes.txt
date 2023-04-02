@@ -41,6 +41,11 @@ Functors and Monads:
     diagrams
     examples other than Maybe
 
+polynomial-algorithms:
+    Coef: Eq, Num, Fractional
+    Mon: Eq, Ord, Semigroup, Monoid
+    Poly: Eq, Num
+
 Algorithms:
     stateless*
     Bonus benefit: the weirdness with = vs := vs == goes away.*

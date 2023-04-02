@@ -631,10 +631,68 @@ A \lstinline{Monad} comes equipped with three functions. \lstinline{return} puts
 Encapsulating all computational contexts in monads makes the codebase safer and cleaner and encourages composition in a way that imperative programming can't compete with. However, this method of doing things is quite unfamiliar to most programmers. That is one of the reasons it is so important to explore functional solutions to problems where currently only imperative solutions exist. In the next chapter, we will discuss one such solution. 
 
 \chapter{The Polynomial-Algorithms Package}
-% In this section, we will discuss how the \lstinline{polynomial-algorithms} package was implemented. We will take a bottom-up approach, starting with the lower-level modules that define the more basal structures and working our way up to the higher-level modules and user facing functions. \par 
-% The first module of note is the \lstinline{Coefficient} module. This contains 
+In this section, we will discuss how the \lstinline{polynomial-algorithms} package was implemented. We will take a bottom-up approach, starting with the lower-level modules that define the more basal structures and working our way up to the higher-level modules and user facing functions. The primary data structure in this package is the \lstinline{Polynomial} type, which is built on top of a \lstinline{Monomial} type and a \lstinline{Coefficient} type. This implementation allows for modularity. We may change the implementation of \lstinline{Monomial} or \lstinline{Coefficient} without changing the \lstinline{Polynomial}. \par 
+The primary purpose of these types is their use in the \lstinline{Algorithms} module. This module contains functions that carry out recursive versions of several algorithms related to polynomials. Polynomial long division and Buchberger's algorithm are the primary features of this module, though it is possible to use the existing \lstinline{Polynomial} type to implement more algorithms in the future. 
 
 \section{The Polynomial Type}
+One very simple module is \lstinline{RingParams}. It merely contains enums that specify the rings and monomial orderings that are allowed throughout the package. Its purpose is to reduce dependencies between the larger modules. The entirety of its content is the following.
+\begin{lstlisting}[language=Haskell]
+data Ring = Q | Zero | FTwo | FThree | FFive deriving (Eq,Read,Show)
+
+data MonOrder = Lex | GLex | GRevLex deriving (Eq,Read,Show)
+\end{lstlisting}
+Note that the \lstinline{Eq} typeclass allows a type to use the \lstinline{==} operator and the \lstinline{Read} typeclass allows a type to be read from a string. Henceforth, the abbreviation \lstinline{RP} stands for \lstinline{RingParams} so if the expression \lstinline{RP.Q} appears, it is referring to the value constructor \lstinline{Q} from this module. \par 
+The first module of real substance is \lstinline{Coefficient} which contains the \lstinline{Coefficient} type. This type is defined as follows.
+\begin{lstlisting}[language=Haskell]
+data Coefficient :: RP.Ring -> * where
+    Q       :: Rational -> Coefficient r
+    Zero    :: Coefficient r
+    FTwo    :: Integer -> Coefficient r
+    FThree  :: Integer -> Coefficient r
+    FFive   :: Integer -> Coefficient r
+    deriving Eq
+\end{lstlisting}
+Note that \lstinline{Rational} is a built in type that represents rational numbers. Since we are using the \lstinline{DataKinds} extension, Our definition of \lstinline{Ring} in \lstinline{RingParams} created not only the type \lstinline{Ring}, but also the kind \lstinline{Ring}. The top line of this definition says that \lstinline{Coefficient} is a type of kind \lstinline{RP.Ring -> *}. That is, it is a type constructor whose input is a type of kind \lstinline{RP.Ring} and whose output is a type of kind \lstinline{*}. We have defined five value constructors for this type. These value constructors are not the same as the ones we saw in the \lstinline{RingParams} module. Those were merely enums. These are the actual types that the \lstinline{Polynomial} type will use. The first value constructor is \lstinline{Q} and represents the field of rational numbers. The next represents the zero ring. The other three represent finite fields with two, three, and five elements respectively. When using any of the features of this package, we may choose which of these fields we wish to use. That means we can find a Gr\"obner basis for a list of polynomials over the rationals and then find a Gr\"obner basis for the same list over $\bF_2$. \par 
+Note that we use the type synonym \lstinline{type Q = Coefficient RP.Q} throughout this package for brevity. Type synonyms are simply aliases to keep the code more concise. The most interesting part of the \lstinline{Coefficient} module other than the type definitions is the implementation of typeclasses. The first typeclass we will explore is \lstinline{Num}. This typeclass specifies that a type should behave like an algebraic ring. This means that this typeclass will have functions that are allowed in a ring. 
+\begin{lstlisting}[language=Haskell]
+instance Num Q where
+    (Q r) + (Q s) = Q (r + s)
+    (Q r) - (Q s) = Q (r - s)
+    (Q r) * (Q s) = Q (r * s)
+    abs (Q r)     = Q (abs r)
+    signum (Q r)  = Q (signum r)
+    fromInteger n = Q $ n % 1
+\end{lstlisting}
+The \lstinline{abs} and \lstinline{signum} functions define the absolute value and sign of a term respecitvely. It is a bit unfortunate that these are part of the \lstinline{Num} typeclass as they are not inherent properties of a ring, but as they are, we must define them. This implementation is actually quite straightforward because \lstinline{Rational} is already an instance of the \lstinline{Num} typeclass. The only reason we needed to define \lstinline{Q} at all is so that it would fit in with the other coefficient rings. Note that \lstinline{%} is a value constructor for the \lstinline{Rational} type. Next, lets examine how \lstinline{FFive} is a \lstinline{Num} instance. 
+\begin{lstlisting}[language=Haskell]
+instance Num FFive where
+    (FFive n) + (FFive m)   = FFive ((n + m) `mod` 5)
+    (FFive n) - (FFive m)   = FFive ((n - m) `mod` 5)
+    (FFive n) * (FFive m)   = FFive ((n * m) `mod` 5)
+    abs (FFive n)           = FFive (abs n)
+    signum (FFive n)        = FFive (signum n)
+    fromInteger n           = FFive $ n `mod` 5
+\end{lstlisting}
+As we can see, this is once again rather straightforward except that we are performing all operations modulo 5. The rest of the rings here have similar \lstinline{Num} instances. \par 
+The other typeclass worth mentioning in the \lstinline{Coefficient} module is \lstinline{Fractional}. This typeclass specifies multiplicative inverses for a type that is already an instance of \lstinline{Num}. An instance of \lstinline{Fractional} is usually a division ring. 
+\begin{lstlisting}[language=Haskell]
+instance Fractional Q where
+    recip (Q r)  = Q (denominator r % numerator r)
+    fromRational = Q
+\end{lstlisting}
+The \lstinline{recip} function specifies the multiplicative inverse of a term in a \lstinline{Fractional} type. Because \lstinline{Rational} is already \lstinline{Fractional}, this instance of \lstinline{Q} is simple. The \lstinline{numerator} and \lstinline{denominator} functions give the numerator and denominator of a \lstinline{Rational} respectively. We must take some care in making \lstinline{Coefficient} an instance of \lstinline{Fractional} using the \lstinline{FFive} value constructor because this constructor is based on an \lstinline{Integer}, not a \lstinline{Rational}, and \lstinline{Integer} is not already \lstinline{Fractional}. 
+\begin{lstlisting}[language=Haskell]
+instance Fractional FFive where
+    recip 0        = error "Cannot divide by zero."
+    recip 1        = FFive 1
+    recip 2        = FFive 3
+    recip 3        = FFive 2
+    recip 4        = FFive 4
+    fromRational n = p * recip q where
+        p = fromInteger (numerator n)
+        q = fromInteger (denominator n)
+\end{lstlisting}
+Here, we have defined each inverse explicitly. The other way to do this would be to use the Euclidean algorithm, but when the field characteristic is this low, it is clearer to do it this way. 
 
 \section{The Division Algorithm}
 A few notational conventions that we will use for this section:
