@@ -42,9 +42,9 @@ Functors and Monads:
     examples other than Maybe
 
 polynomial-algorithms:
-    Coef: Eq, Num, Fractional
-    Mon: Eq, Ord, Semigroup, Monoid
-    Poly: Eq, Num
+    Coef: Num, Fractional
+    Mon: Ord, Semigroup, Monoid
+    Poly: Num, polyMult, sPoly
 
 Algorithms:
     stateless*

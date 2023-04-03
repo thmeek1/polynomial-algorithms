@@ -173,7 +173,7 @@ This viewpoint of polynomials as a formal combination of monomials rather than a
 \begin{definition}
   A \textbf{monomial} in $x_1,\dots,x_n$ is a product of the form 
   \[ x_1^{\alpha_1} \cdot x_2^{\alpha_2} \cdots x_n^{\alpha_n}, \]
-  where all of the exponents $\alpha_1,\dots,\alpha_n$ are nonnegative integers. The \textbf{total degree} of this monomial is the sum $\alpha_1 + \dots + \alpha_n$.
+  where all of the exponents $\alpha_1,\dots,\alpha_n$ are nonnegative integers. The \textbf{multidegree} of this monomial is the $n$-tuple $(\alpha_1,\alpha_2,\dots) \in \bZ_{\ge0}^n$. The \textbf{total degree} of this monomial is the sum $\alpha_1 + \dots + \alpha_n$.
 \end{definition}
 We can simplify the notation for monomials as follows: let $\alpha = (\alpha_1,\dots,\alpha_n)$ be an $n$-tuple of nonnegative integers. Then we set
 \[ x^\alpha = x_1^{\alpha_1} \cdot x_2^{\alpha_2} \cdots x_n^{\alpha_n}. \]
@@ -641,7 +641,7 @@ data Ring = Q | Zero | FTwo | FThree | FFive deriving (Eq,Read,Show)
 
 data MonOrder = Lex | GLex | GRevLex deriving (Eq,Read,Show)
 \end{lstlisting}
-Note that the \lstinline{Eq} typeclass allows a type to use the \lstinline{==} operator and the \lstinline{Read} typeclass allows a type to be read from a string. Henceforth, the abbreviation \lstinline{RP} stands for \lstinline{RingParams} so if the expression \lstinline{RP.Q} appears, it is referring to the value constructor \lstinline{Q} from this module. \par 
+Note that the \lstinline{Eq} typeclass allows a type to use the \lstinline{==} operator and the \lstinline{Read} typeclass allows a type to be read from a string. Henceforth, the abbreviation \lstinline{RP} stands for \lstinline{RingParams} so if the expression \lstinline{RP.Q} appears, it is referring to the value constructor \lstinline{Q} from this module. Additionally for this section, we will omit class constraints from function definitions for brevity. \par 
 The first module of real substance is \lstinline{Coefficient} which contains the \lstinline{Coefficient} type. This type is defined as follows.
 \begin{lstlisting}[language=Haskell]
 data Coefficient :: RP.Ring -> * where
@@ -650,7 +650,6 @@ data Coefficient :: RP.Ring -> * where
     FTwo    :: Integer -> Coefficient r
     FThree  :: Integer -> Coefficient r
     FFive   :: Integer -> Coefficient r
-    deriving Eq
 \end{lstlisting}
 Note that \lstinline{Rational} is a built in type that represents rational numbers. Since we are using the \lstinline{DataKinds} extension, Our definition of \lstinline{Ring} in \lstinline{RingParams} created not only the type \lstinline{Ring}, but also the kind \lstinline{Ring}. The top line of this definition says that \lstinline{Coefficient} is a type of kind \lstinline{RP.Ring -> *}. That is, it is a type constructor whose input is a type of kind \lstinline{RP.Ring} and whose output is a type of kind \lstinline{*}. We have defined five value constructors for this type. These value constructors are not the same as the ones we saw in the \lstinline{RingParams} module. Those were merely enums. These are the actual types that the \lstinline{Polynomial} type will use. The first value constructor is \lstinline{Q} and represents the field of rational numbers. The next represents the zero ring. The other three represent finite fields with two, three, and five elements respectively. When using any of the features of this package, we may choose which of these fields we wish to use. That means we can find a Gr\"obner basis for a list of polynomials over the rationals and then find a Gr\"obner basis for the same list over $\bF_2$. \par 
 Note that we use the type synonym \lstinline{type Q = Coefficient RP.Q} throughout this package for brevity. Type synonyms are simply aliases to keep the code more concise. The most interesting part of the \lstinline{Coefficient} module other than the type definitions is the implementation of typeclasses. The first typeclass we will explore is \lstinline{Num}. This typeclass specifies that a type should behave like an algebraic ring. This means that this typeclass will have functions that are allowed in a ring. 
@@ -692,7 +691,80 @@ instance Fractional FFive where
         p = fromInteger (numerator n)
         q = fromInteger (denominator n)
 \end{lstlisting}
-Here, we have defined each inverse explicitly. The other way to do this would be to use the Euclidean algorithm, but when the field characteristic is this low, it is clearer to do it this way. 
+Here, we have defined each inverse explicitly. The other way to do this would be to use the Euclidean algorithm, but when the field characteristic is this low, it is clearer to do it this way. \par 
+The next type we will discuss is \lstinline{Monomial}. There are actually two separate implementations of this type. One implementation is contained in the \lstinline{DenseMonom} module and is based on the \lstinline{fixed-vector} package \cite{Shimuuar}. Using this implementation, the \lstinline{Monomial} type is defined as 
+\begin{lstlisting}[language=Haskell]
+newtype Monomial :: Nat -> RP.MonOrder -> * where
+    MakeMon :: { degVec :: UV.Vec n Int } -> Monomial n o
+\end{lstlisting}
+This definition uses the \lstinline{newtype} keyword, which is the same as \lstinline{data} but more efficient in some cases and \lstinline{UV.Vec} is just the type we're using from \lstinline{fixed-vector}. It also uses \emph{record syntax} which just means that we automatically get an accessor function \lstinline{degVec} that gives us the multidegree of a \lstinline{Monomial} stored as a fixed length vector. Observe that the first parameter of \lstinline{Monomial} is of kind \lstinline{Nat}. This enables us to make the number of variables in our polynomial ring part of the type. For a discussion of why this is important, see Chapter 3. \par 
+The other implementation of \lstinline{Monomial} uses a \lstinline{Map} to store the exponents instead of a \lstinline{Vec}. This implementation is in the \lstinline{SparseMonom} module. We call it sparse because if we are in a polynomial ring with thirty variables, the monomial $x^2$ will be stored as a vector with twenty-nine 0's and a single 2 in \lstinline{DenseMonom}, but in \lstinline{SparseMonom}, it will be a \lstinline{Map} with a single key-value pair. In this module, we define \lstinline{Monomial} as follows.
+\begin{lstlisting}[language=Haskell]
+newtype Monomial :: Nat -> RP.MonOrder -> * where
+    MakeMon :: { degMap :: IMap.IntMap Int } -> Monomial n o
+\end{lstlisting}
+This definition is similar to before, but with \lstinline{degMap} in place of \lstinline{degVec}. \par 
+We mentioned in Chapter 2 that Haskell used more mathematical terminology than most languages. The next two typeclasses are good examples of that. 
+\begin{lstlisting}[language=Haskell]
+class Semigroup a where
+    (<>) :: a -> a -> a
+
+class Semigroup a => Monoid a where
+    mempty :: a
+\end{lstlisting}
+As the names imply, an instance of the \lstinline{Semigroup} typeclass should be a semigroup, and an instance of the \lstinline{Monoid} typeclass should be a monoid. The \lstinline{<>} operator is the semigroup operation, and the \lstinline{mempty} function is the identity in the monoid. The \lstinline{Monomial} type is both a semigroup and a monoid. In the dense representation, this is implemented as 
+\begin{lstlisting}[language=Haskell]
+instance Semigroup (Mon n o) where
+    a <> b = MakeMon $ V.zipWith (+) (degVec a) (degVec b)
+
+instance Monoid (Mon n o) where
+    mempty = MakeMon $ V.fromList' $ replicate nn 0
+        where nn = (fromInteger . reflect) (Proxy :: Proxy n)
+\end{lstlisting}
+The interesting part of these definitions is the \lstinline{where nn} clause. This is how the \lstinline{Nat} kind works. If we need to access the numeric value associated with a type-level natural number, we \lstinline{reflect} the value from a \lstinline{Proxy}. This can be a bit difficult to understand, but just know that this is how we actually use the information that we are storing in the type of our data. In this case, the \lstinline{mempty} function needs to know the type of \lstinline{Monomial} it is going to output, otherwise, it won't know how big to make the vector. The sparse version of \lstinline{Monomial} is also an instance of \lstinline{Semigroup} and \lstinline{Monoid}. 
+\begin{lstlisting}[language=Haskell]
+instance Semigroup (Mon n o) where
+    a <> b = MakeMon $ IMap.unionWith (+) (degMap a) (degMap b)
+
+instance Monoid (Mon n o) where
+    mempty = MakeMon $ IMap.empty
+\end{lstlisting}
+Notice that in this case, we didn't need the type-level information to form the monoidal identity. That's a benefit of a sparse representation. The identity is just stored as an empty map. \par 
+One other important typeclass is \lstinline{Ord}. This specifies the ordering of a type and how they work with the \lstinline{>} and \lstinline{<} operators in Haskell. In the case of \lstinline{Monomial}, this  of course corresponds to the monomial orderings we discussed in Chapter 2. We want to be able to run algorithms for any of the three main orderings we discussed, so \lstinline{Monomial} is an instance of \lstinline{Ord} with each ordering separately. In the dense implementation, this is accomplished with the following. 
+\begin{lstlisting}[language=Haskell]
+instance Ord (Mon n RP.Lex) where
+    compare a b = compare (degVec a) (degVec b)
+
+instance Ord (Mon n RP.GLex) where
+    compare a b = let aVb = compare (totalDegree a) (totalDegree b)
+                  in  if aVb == EQ
+                      then compare (degVec a) (degVec b)
+                      else aVb
+
+instance Ord (Mon n RP.GRevLex) where
+    compare a b = let aVb = compare (totalDegree a) (totalDegree b)
+                      a'  = V.reverse $ degVec a
+                      b'  = V.reverse $ degVec b
+                  in  if aVb == EQ
+                      then compare b' a'
+                      else aVb
+\end{lstlisting}
+Notice that we are partially evaluating the \lstinline{Monomial} type constructor by putting in a concrete type for the \lstinline{o} parameter but leaving the \lstinline{n} parameter arbitrary. We use the same strategy in \lstinline{SparseMonom}, but the implementation is a little trickier. We won't go into detail here, but the lack of zero exponents pose a challenge in determining the order efficiently. \par 
+Now that we have a \lstinline{Coefficient} type and a \lstinline{Monomial} type, we can build the \lstinline{Polynomial} type. A \lstinline{Polynomial} is a map from \lstinline{Monomial} to \lstinline{Coefficient}. 
+\begin{lstlisting}[language=Haskell]
+newtype Polynomial :: RP.Ring -> Nat -> RP.MonOrder -> * where
+  MakePoly :: {monMap :: Map.Map (Mon n o) (Coef r)} -> Polynomial r n o
+\end{lstlisting}
+Since polynomials form a ring, it makes sense to make \lstinline{Polynomial} and instance of the \lstinline{Num} typeclass. 
+\begin{lstlisting}[language=Haskell]
+instance Num (Poly r n o) where
+    f + g           = makePoly $ Map.unionWith (+) (monMap f) (monMap g)
+    f * g           = f `polyMult` g
+    abs             = id
+    signum _        = 1
+    fromInteger n   = makePoly $ Map.singleton mempty (fromInteger n)
+    negate          = makePoly . Map.map negate . monMap
+\end{lstlisting}
 
 \section{The Division Algorithm}
 A few notational conventions that we will use for this section:
