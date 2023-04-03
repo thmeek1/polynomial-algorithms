@@ -520,7 +520,7 @@ instance Functor Maybe where
     fmap f Nothing  = Nothing
     fmap f (Just a) = Just (f a)
 \end{lstlisting}
-Mapping any function over \lstinline{Nothing} just results in \lstinline{Nothing}, while mapping a function over \lstinline{Just} something applies that function to the contents of the \lstinline{Just}. \par 
+Mapping any function over \lstinline{Nothing} results in \lstinline{Nothing}, while mapping a function over \lstinline{Just} something applies that function to the contents of the \lstinline{Just}. \par 
 It is not uncommon in Haskell for typeclasses to come equipped with recommended rules for how they should work. These rules are not enforced by the compiler, but should be followed whenever possible. If a type is an instance of a typeclass with these rules but does not follow them, it should be clearly documented with the reason why. In the case of \lstinline{Functor}, there are two of these rules known as the \emph{functor laws} that every \lstinline{Functor} instance should obey. 
 \begin{lstlisting}[language=Haskell]
 fmap id == id
@@ -558,7 +558,7 @@ pure f <*> pure x = pure (f x)
 u <*> pure y = pure ($ y) <*> u
 \end{lstlisting}
 In the above, \lstinline{(.)} is function composition and \lstinline{($)} is function application. For an explanation of these laws, see the documentation \cite{Prelude}. The reason for defining applicative functors here is so that we may discuss a very special applicative functor with a familiar name. \par 
-We ended Chapter 2 by introducing an odd categorical construction. An endofunctor $\cT: \sC \to \sC$ equipped with two natural transformations $\eta: 1_\sC \Rightarrow \cT$ and $\mu: \cT^2 \Rightarrow \cT$ that satisfied a pair of commutative diagrams. We called this functor a \emph{monad}. Monads are important enough in their native domain of category theory, but where they really shine is in the realm of functional programming. In Haskell, \lstinline{Monad} is a typeclass that may be implemented on an applicative functor. Instances of \lstinline{Monad} are monads on the category $\Hask$. 
+We ended Chapter 2 by introducing an odd categorical construction: an endofunctor $\cT: \sC \to \sC$ equipped with two natural transformations $\eta: 1_\sC \Rightarrow \cT$ and $\mu: \cT^2 \Rightarrow \cT$ that satisfied a pair of commutative diagrams. We called this structure a \emph{monad}. Monads are important enough in their native domain of category theory, but where they really shine is in the realm of functional programming. In Haskell, \lstinline{Monad} is a typeclass that may be implemented on an applicative functor. Instances of \lstinline{Monad} are monads on the category $\Hask$. 
 \begin{lstlisting}[language=Haskell]
 class Applicative m => Monad m where
     (>>=)   :: m a -> (a -> m b) -> m b
@@ -567,7 +567,7 @@ class Applicative m => Monad m where
     m >> k  = m >>= \x -> k
     return  = pure
 \end{lstlisting}
-The \lstinline{Monad} typeclass specifies three functions, \lstinline{>>=}, \lstinline{>>}, and \lstinline{return}. Note that two of these functions are defined in the \lstinline{class} definition. Those are defalut implementations. They may be overridden, but in the case of \lstinline{Monad}, they rarely are. The \lstinline{return} function is equivalent to \lstinline{pure}. The \lstinline{>>} function is rarely used, so we will not discuss it here. The important one of this bunch is the one that does not have a default implementation, \lstinline{>>=}. This is called the \emph{bind} operator. \par 
+The \lstinline{Monad} typeclass specifies three functions, \lstinline{>>=}, \lstinline{>>}, and \lstinline{return}. Note that two of these functions are defined in the \lstinline{class} definition. Those are default implementations. They may be overridden, but in the case of \lstinline{Monad}, they rarely are. The \lstinline{return} function is equivalent to \lstinline{pure}. The \lstinline{>>} function is rarely used, so we will not discuss it here. The important one of this bunch is the one that does not have a default implementation, \lstinline{>>=}. This is called the \emph{bind} operator. \par 
 In a less abstract sense, a monad, and to a lesser extent, any functor, may be thought of as a \emph{computational context}. The bind operator takes a value of type \lstinline{a} that is already in some context \lstinline{m} and a function of type \lstinline{a -> m b} that maps standard values to contextualized values. Its output is the image of the decontextualized value under that function. The context here could be almost anything. Lists are monads whose computational context is that there are more than one terms of a given type. The \lstinline{Maybe} functor is a monad where the computational context is that any term may or may not exist. When Haskellers are writing software, it is usually more insightful to think of monads this way than as endofunctors and natural transformations on the category $\Hask$. \par 
 Since all monads are applicative functors and all applicative functors are functors, monads should obey the functor laws and the applicative laws. In addition, there are three more laws a monad should obey. These are the \emph{monad laws}.
 \begin{lstlisting}[language=Haskell]
@@ -589,7 +589,7 @@ The \lstinline{return} function is just the unit natural transformation $\eta$, 
 join :: (Monad m) => m (m a) -> m a
 join x = x >>= id
 \end{lstlisting}
-It turns out one could define a monad using \lstinline{join} instead of bind and then define bind using join. This method is equivalent to the standard approach. In fact, the developers of Haskell tried fairly recently to include \lstinline{join} in the definition for \lstinline{Monad} and allow developers the option of defining either \lstinline{join} or bind when creating a \lstinline{Monad} instance. Unfortunately, due to some technical limitations, this is not currently possible, though there have been more recent attempts to fix this problem \cite{Scott2018}. If this technical problem were overcome, we could redefine the maybe typeclass as 
+It turns out one could define a monad using \lstinline{join} instead of bind and then define bind using \lstinline{join}. This method is equivalent to the standard approach. In fact, the developers of Haskell tried fairly recently to include \lstinline{join} in the definition for \lstinline{Monad} and allow developers the option of defining either \lstinline{join} or bind when creating a \lstinline{Monad} instance. Unfortunately, due to some technical limitations, this is not currently possible, though there have been more recent attempts to fix this problem \cite{Scott2018}. If this technical problem were overcome, we could redefine the \lstinline{Monad} typeclass as 
 \begin{lstlisting}[language=Haskell]
 class Applicative m => Monad m where
     (>>=)   :: m a -> (a -> m b) -> m b
@@ -627,7 +627,7 @@ instance Monad Maybe where
     join _ = Nothing
 \end{lstlisting}
 The \lstinline{_} is a place holder. It means that any expression that doesn't look like the first one will evaluate to \lstinline{Nothing}. \par 
-A \lstinline{Monad} comes equipped with three functions. \lstinline{return} puts an expression into some computational context, \lstinline{join} reduces the nested level of context by one, and bind is a mixture of both that ends up being quite useful in practice. We mentioned before that lists as well as \lstinline{Maybe} functors are monads, but there are many more examples, like \lstinline{Either}, \lstinline{State}, and \lstinline{IO}. That's right. Any \lstinline{IO} operation in Haskell is a monad. Even printing to the screen. \par 
+A \lstinline{Monad} comes equipped with three functions. \lstinline{return} puts an expression into some computational context, \lstinline{join} reduces the nested level of context by one, and bind is a mixture of both that ends up being quite useful in practice. We mentioned before that lists as well as \lstinline{Maybe} functors are monads, but there are many more examples, like \lstinline{Either}, \lstinline{State}, and \lstinline{IO}. That's right. Any \lstinline{IO} operation in Haskell is a monad, even printing to the screen. \par 
 Encapsulating all computational contexts in monads makes the codebase safer and cleaner and encourages composition in a way that imperative programming can't compete with. However, this method of doing things is quite unfamiliar to most programmers. That is one of the reasons it is so important to explore functional solutions to problems where currently only imperative solutions exist. In the next chapter, we will discuss one such solution. 
 
 \chapter{The Polynomial-Algorithms Package}
@@ -695,13 +695,13 @@ Here, we have defined each inverse explicitly. The other way to do this would be
 The next type we will discuss is \lstinline{Monomial}. There are actually two separate implementations of this type. One implementation is contained in the \lstinline{DenseMonom} module and is based on the \lstinline{fixed-vector} package \cite{Shimuuar}. Using this implementation, the \lstinline{Monomial} type is defined as 
 \begin{lstlisting}[language=Haskell]
 newtype Monomial :: Nat -> RP.MonOrder -> * where
-    MakeMon :: { degVec :: UV.Vec n Int } -> Monomial n o
+    MakeMon :: { degVec :: Vec n Int } -> Monomial n o
 \end{lstlisting}
-This definition uses the \lstinline{newtype} keyword, which is the same as \lstinline{data} but more efficient in some cases and \lstinline{UV.Vec} is just the type we're using from \lstinline{fixed-vector}. It also uses \emph{record syntax} which just means that we automatically get an accessor function \lstinline{degVec} that gives us the multidegree of a \lstinline{Monomial} stored as a fixed length vector. Observe that the first parameter of \lstinline{Monomial} is of kind \lstinline{Nat}. This enables us to make the number of variables in our polynomial ring part of the type. For a discussion of why this is important, see Chapter 3. \par 
-The other implementation of \lstinline{Monomial} uses a \lstinline{Map} to store the exponents instead of a \lstinline{Vec}. This implementation is in the \lstinline{SparseMonom} module. We call it sparse because if we are in a polynomial ring with thirty variables, the monomial $x^2$ will be stored as a vector with twenty-nine 0's and a single 2 in \lstinline{DenseMonom}, but in \lstinline{SparseMonom}, it will be a \lstinline{Map} with a single key-value pair. In this module, we define \lstinline{Monomial} as follows.
+This definition uses the \lstinline{newtype} keyword, which is the same as \lstinline{data} but more efficient in some cases and \lstinline{Vec} is just the type we're using from \lstinline{fixed-vector}. It also uses \emph{record syntax} which means that we automatically get an accessor function \lstinline{degVec} that gives us the multidegree of a \lstinline{Monomial} stored as a fixed length vector. Observe that the first parameter of \lstinline{Monomial} is of kind \lstinline{Nat}. This enables us to make the number of variables in our polynomial ring part of the type. For a discussion of why this is important, see the end of section 3.1. \par 
+In Haskell, \lstinline{Map k v} is a type that represents key-value pairs. The keys are of type \lstinline{k} and the values are of type \lstinline{v}. An \lstinline{IntMap a} is a \lstinline{Map} whose keys are of type \lstinline{Int} and whose values are of type \lstinline{a}. The other implementation of \lstinline{Monomial} uses an \lstinline{IntMap} to store the exponents instead of a \lstinline{Vec}. This implementation is in the \lstinline{SparseMonom} module. We call it sparse because if we are in a polynomial ring with thirty variables, then using \lstinline{DenseMonom}, the monomial $x^2$ will be stored as a vector with twenty-nine 0's and a single 2, but in \lstinline{SparseMonom}, it will be an \lstinline{IntMap} with a single key-value pair. In this module, we define \lstinline{Monomial} as follows.
 \begin{lstlisting}[language=Haskell]
 newtype Monomial :: Nat -> RP.MonOrder -> * where
-    MakeMon :: { degMap :: IMap.IntMap Int } -> Monomial n o
+    MakeMon :: { degMap :: IntMap Int } -> Monomial n o
 \end{lstlisting}
 This definition is similar to before, but with \lstinline{degMap} in place of \lstinline{degVec}. \par 
 We mentioned in Chapter 2 that Haskell used more mathematical terminology than most languages. The next two typeclasses are good examples of that. 
@@ -715,19 +715,19 @@ class Semigroup a => Monoid a where
 As the names imply, an instance of the \lstinline{Semigroup} typeclass should be a semigroup, and an instance of the \lstinline{Monoid} typeclass should be a monoid. The \lstinline{<>} operator is the semigroup operation, and the \lstinline{mempty} function is the identity in the monoid. The \lstinline{Monomial} type is both a semigroup and a monoid. In the dense representation, this is implemented as 
 \begin{lstlisting}[language=Haskell]
 instance Semigroup (Mon n o) where
-    a <> b = MakeMon $ V.zipWith (+) (degVec a) (degVec b)
+    a <> b = MakeMon $ zipWith (+) (degVec a) (degVec b)
 
 instance Monoid (Mon n o) where
-    mempty = MakeMon $ V.fromList' $ replicate nn 0
+    mempty = MakeMon $ fromList $ replicate nn 0
         where nn = (fromInteger . reflect) (Proxy :: Proxy n)
 \end{lstlisting}
 The interesting part of these definitions is the \lstinline{where nn} clause. This is how the \lstinline{Nat} kind works. If we need to access the numeric value associated with a type-level natural number, we \lstinline{reflect} the value from a \lstinline{Proxy}. This can be a bit difficult to understand, but just know that this is how we actually use the information that we are storing in the type of our data. In this case, the \lstinline{mempty} function needs to know the type of \lstinline{Monomial} it is going to output, otherwise, it won't know how big to make the vector. The sparse version of \lstinline{Monomial} is also an instance of \lstinline{Semigroup} and \lstinline{Monoid}. 
 \begin{lstlisting}[language=Haskell]
 instance Semigroup (Mon n o) where
-    a <> b = MakeMon $ IMap.unionWith (+) (degMap a) (degMap b)
+    a <> b = MakeMon $ unionWith (+) (degMap a) (degMap b)
 
 instance Monoid (Mon n o) where
-    mempty = MakeMon $ IMap.empty
+    mempty = MakeMon $ empty
 \end{lstlisting}
 Notice that in this case, we didn't need the type-level information to form the monoidal identity. That's a benefit of a sparse representation. The identity is just stored as an empty map. \par 
 One other important typeclass is \lstinline{Ord}. This specifies the ordering of a type and how they work with the \lstinline{>} and \lstinline{<} operators in Haskell. In the case of \lstinline{Monomial}, this  of course corresponds to the monomial orderings we discussed in Chapter 2. We want to be able to run algorithms for any of the three main orderings we discussed, so \lstinline{Monomial} is an instance of \lstinline{Ord} with each ordering separately. In the dense implementation, this is accomplished with the following. 
@@ -743,42 +743,43 @@ instance Ord (Mon n RP.GLex) where
 
 instance Ord (Mon n RP.GRevLex) where
     compare a b = let aVb = compare (totalDegree a) (totalDegree b)
-                      a'  = V.reverse $ degVec a
-                      b'  = V.reverse $ degVec b
+                      a'  = reverse $ degVec a
+                      b'  = reverse $ degVec b
                   in  if aVb == EQ
                       then compare b' a'
                       else aVb
 \end{lstlisting}
-Notice that we are partially evaluating the \lstinline{Monomial} type constructor by putting in a concrete type for the \lstinline{o} parameter but leaving the \lstinline{n} parameter arbitrary. We use the same strategy in \lstinline{SparseMonom}, but the implementation is a little trickier. We won't go into detail here, but the lack of zero exponents pose a challenge in determining the order efficiently. \par 
-Now that we have a \lstinline{Coefficient} type and a \lstinline{Monomial} type, we can build the \lstinline{Polynomial} type. A \lstinline{Polynomial} is a map from \lstinline{Monomial} to \lstinline{Coefficient}. 
+Notice that we are partially evaluating the \lstinline{Monomial} type constructor by putting in a concrete type for the \lstinline{o} parameter but leaving the \lstinline{n} parameter arbitrary. We use the same strategy in \lstinline{SparseMonom}, but the implementation is a little trickier. We won't go into detail here, but the lack of zero exponents poses a challenge in determining the order efficiently. \par 
+Since we have two different implementation of this type, we are able to compare their efficiency. In all of our testing, we have found that the sparse implementation is significantly faster than the dense. In the case of a polynomial ring with many variables this is to be expected, but the fact that it is faster with only two or three variables is a bit surprising. It is likely due to the fact that the \lstinline{IntMap} type is much more widely used than the \lstinline{Vec} type, so the community effort to make it efficient has been more successful. \par 
+Now that we have a \lstinline{Coefficient} type and a \lstinline{Monomial} type, we can build the \lstinline{Polynomial} type. A \lstinline{Polynomial} is a \lstinline{Map} from \lstinline{Monomial} to \lstinline{Coefficient}. 
 \begin{lstlisting}[language=Haskell]
 newtype Polynomial :: RP.Ring -> Nat -> RP.MonOrder -> * where
-  MakePoly :: {monMap :: Map.Map (Mon n o) (Coef r)} -> Polynomial r n o
+    MakePoly :: { monMap :: Map (Mon n o) (Coef r) } -> Polynomial r n o
 \end{lstlisting}
-Throughout this module, \lstinline{Mon} is a type synonym for \lstinline{Monomial}, \lstinline{Coeff} is a type synonym for \lstinline{Coefficient}, and \lstinline{Poly} is a type synonym for \lstinline{Polynomial}. Since polynomials form a ring, it makes sense to make \lstinline{Polynomial} and instance of the \lstinline{Num} typeclass. 
+Throughout this module, \lstinline{Mon} is a type synonym for \lstinline{Monomial}, \lstinline{Coeff} is a type synonym for \lstinline{Coefficient}, and \lstinline{Poly} is a type synonym for \lstinline{Polynomial}. Since polynomials form a ring, it makes sense to make \lstinline{Polynomial} an instance of the \lstinline{Num} typeclass. 
 \begin{lstlisting}[language=Haskell]
 instance Num (Poly r n o) where
-    f + g           = makePoly $ Map.unionWith (+) (monMap f) (monMap g)
+    f + g           = makePoly $ unionWith (+) (monMap f) (monMap g)
     f * g           = f `polyMult` g
     abs             = id
     signum _        = 1
-    fromInteger n   = makePoly $ Map.singleton mempty (fromInteger n)
-    negate          = makePoly . Map.map negate . monMap
+    fromInteger n   = makePoly $ singleton mempty (fromInteger n)
+    negate          = makePoly . map negate . monMap
 \end{lstlisting}
-Polynomial addition is just unioning all the terms together and if any have the same monomial, we add their coefficients. The \lstinline{makePoly} function works like the \lstinline{MakePoly} value constructor except that it filters out terms whose coefficients are 0. \lstinline{abs} and \lstinline{signum} once again don't really make sense for a polynomial ring, but we must define them anyway. An integer $n$ may be represented as a polynomial with the map from the identity monomial to $n$. The negative of a polynomial is given by negating each of the coefficients. The only difficult definition here is multiplication. What we have is only a call to a helper function. Lets take a look at \lstinline{polyMult}. 
+Polynomial addition is just unioning all the terms together and if any have the same monomial, we add their coefficients. The \lstinline{makePoly} function uses the \lstinline{MakePoly} value constructor but it filters out terms whose coefficients are 0. The functions \lstinline{abs} and \lstinline{signum} once again don't really make sense for a polynomial ring, but we must define them anyway. An integer $n$ may be represented as a polynomial with the map from the identity monomial to $n$. The negative of a polynomial is given by negating each of the coefficients. The only difficult definition here is multiplication. What we have is only a call to a helper function. Lets take a look at \lstinline{polyMult}. 
 \begin{lstlisting}[language=Haskell]
 f `polyMult` g = if numTerms f < numTerms g
                  then f `leftPolyMult` g
                  else g `leftPolyMult` f where
-    f `leftPolyMult` g = Map.foldlWithKey (distrOver g) 0 (monMap f)
+    f `leftPolyMult` g = foldlWithKey (distrOver g) 0 (monMap f)
     distrOver g p m c  = p + (leftMultWithCoef m c g)
 \end{lstlisting}
-The reason for the \lstinline{if} statement is efficiency. It is more efficient to multiply polynomials in this manner when the one with fewer terms is on the left. This is because of the way our \lstinline{foldl} works. The \lstinline{leftMultWithCoef} function multiplies a single term by a polynomial. \par 
+The \lstinline{leftMultWithCoef} function multiplies a single term by a polynomial. The reason for the \lstinline{if} statement is efficiency. It is more efficient to multiply polynomials in this manner when the one with fewer terms is on the left. This is because of the way our \lstinline{foldl} works. \par 
 The last function we will examine in the \lstinline{Polynomial} module is \lstinline{sPoly}. Given two polynomials $f$ and $g$, \lstinline{sPoly} computes $S(f,g)$ as defined in Chapter 2. One difficulty with this is that $S(f,0)$ is undefined, so how should this function behave if the zero polynomial is one of its inputs? One way to handle potential failure in Haskell is with the \lstinline{Maybe} monad. So instead of \lstinline{sPoly} having an output of type \lstinline{Poly r n o}, its output will be of type \lstinline{Maybe (Poly r n o)}. 
 \begin{lstlisting}[language=Haskell]
 sPoly :: Poly r n o -> Poly r n o -> Maybe (Poly r n o)
 sPoly f g = (-) <$> redf <*> redg where
-    lcm = M.lcmMon <$> leadMonom f <*> leadMonom g
+    lcm = lcmMon <$> leadMonom f <*> leadMonom g
     fNorm = divideByLeadTerm <$> fmap asPoly lcm <*> leadTerm f >>= id
     gNorm = divideByLeadTerm <$> fmap asPoly lcm <*> leadTerm g >>= id
     redf = (*) <$> fNorm <*> Just f
@@ -786,7 +787,13 @@ sPoly f g = (-) <$> redf <*> redg where
 \end{lstlisting}
 Recall that the $S$-polynomial of $f$ and $g$ is defined as 
 \[ S(f,g) = \frac{x^\gamma}{\LT(f)} \cdot f - \frac{x^\gamma}{\LT(g)} \cdot g \]
-where $x^\gamma$ is the least common multiple of $\LT(f)$ and $\LT(g)$. In the \lstinline{sPoly} code above, \lstinline{lcm} is $x^\gamma$, \lstinline{fNorm} is $\frac{f}{\LT(f)}$, \lstinline{gNorm} is $\frac{g}{\LT(g)}$, \lstinline{redf} is $\frac{x^\gamma}{\LT(f)} \cdot f$, and \lstinline{redg} is $\frac{x^\gamma}{\LT(g)} \cdot g$. The problem is that \lstinline{leadMonom} and \lstinline{leadTerm} both return \lstinline{Maybe} values, because the zero polynomial has no lead term. The pattern of using \lstinline{<$>} and \lstinline{<*>} as above is a common idiom in Haskell for dealing with monads, especially the \lstinline{Maybe} monad. If I write a function that takes input of type \lstinline{Mon n o} and I give it a \lstinline{Maybe (Mon n o)}, then it won't work. So I could either make sure that all of my terms are \lstinline{Maybe} values all the time or I could write two versions of every function, one for regular terms and one for monadic terms. Neither of these options are acceptable, so instead we use this pattern. Doing this makes it so that if a \lstinline{Nothing} value is encountered, it is passed along until it is dealt with. If all of the values are \lstinline{Just}, then it evaluates the function as normal. It may look confusing if you're not used to the syntax, but it is a great way to handle potential failure in functional programming. 
+where $x^\gamma$ is the least common multiple of $\LT(f)$ and $\LT(g)$. In the \lstinline{sPoly} code above, \lstinline{lcm} is $x^\gamma$, \lstinline{fNorm} is $\frac{f}{\LT(f)}$, \lstinline{gNorm} is $\frac{g}{\LT(g)}$, \lstinline{redf} is $\frac{x^\gamma}{\LT(f)} \cdot f$, and \lstinline{redg} is $\frac{x^\gamma}{\LT(g)} \cdot g$. The problem is that \lstinline{leadMonom} and \lstinline{leadTerm} both return \lstinline{Maybe} values, because the zero polynomial has no lead term. The pattern of using \lstinline{<$>} and \lstinline{<*>} as above is a common idiom in Haskell for dealing with monads, especially the \lstinline{Maybe} monad. If I write a function that takes input of type \lstinline{Mon n o} and I give it a \lstinline{Maybe (Mon n o)}, then it won't work. So I could either make sure that all of my terms are \lstinline{Maybe} values all the time or I could write two versions of every function, one for regular terms and one for monadic terms. Neither of these options are acceptable, so instead we use this pattern. Doing this makes it so that if a \lstinline{Nothing} value is encountered, it is passed along until it is dealt with. If all of the values are \lstinline{Just} values, then it evaluates the function as normal. It may look confusing if you're not used to the syntax, but it is a great way to handle potential failure in functional programming. \par 
+Now that we have a type that represents polynomials, how do we use it? How do we create a polynomial of in a polynomial ring over $\bQ$ with thee variables using the lexicographical monomial order for example? Since these parameters are type-level information, we cannot pass term-level parameters to our constructor functions. The answer is quite elegant. We simply use a type annotation. 
+\begin{lstlisting}[language=Haskell]
+type R = Polynomial RP.Q 3 RP.Lex
+f = (fromString "x^5 + y^4 + z^3 - 1") :: R
+\end{lstlisting}
+Here, we have a polynomial \lstinline{f} that is a member of the polynomial ring $\bQ[x,y,z]$ whose monomials use the lexicographical ordering. Now we can analyze \lstinline{f} with the tools in the \lstinline{Algorithms} module. 
 
 \section{The Division Algorithm}
 A few notational conventions that we will use for this section:
