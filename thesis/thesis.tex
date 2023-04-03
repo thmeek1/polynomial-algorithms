@@ -796,18 +796,48 @@ f = (fromString "x^5 + y^4 + z^3 - 1") :: R
 Here, we have a polynomial \lstinline{f} that is a member of the polynomial ring $\bQ[x,y,z]$ whose monomials use the lexicographical ordering. Now we can analyze \lstinline{f} with the tools in the \lstinline{Algorithms} module. 
 
 \section{The Division Algorithm}
+Giving a formal definition for an algorithm is a bit difficult. Is it a set of instructions? Does that set have to be finite? Does there have to be a relationship between the instructions? What does that relationship have to be? What even is an instruction? It could be argued that what the point of the Church Turing thesis is to give a definition for an algorithm \cite{Kleene1952}. Taking this approach, we could say that an algorithm is a process that can be executed by a Turing machine which will eventually find some terminating state. We know however that the Turing machine model of computation is equivalent to the $\lambda$-calculus model. By our discussion at the beginning of Chapter 3, Turing machines make calculations in an imperative way and $\lambda$-calculus uses a declarative style. So there must be a way to formulate an algorithm with only declarative statements that is equivalent to the standard set of instructions. \par 
+As one would expect, this comes down to writing functions. Instead of starting with input, doing operations, then returning output, we instead just define a function that takes the input and returns the output. In principle, this is the same thing. However, the mechanics can be quite different for the reasons discussed in Chapter 3. In this section we present a function, or \emph{functional algorithm}, whose input and output are the same as the long division algorithm for multivariate polynomials. \par 
+
+% For comparison, here is the standard long division algorithm for finding the remainder of a polynomial \lstinline{f} upon division by a set of polynomials \lstinline{[g_1...g_s]}
+% \begin{lstlisting}
+% p := f;
+% WHILE (p != 0) DO
+%     i := 1;
+%     division_occurred := FALSE;
+%     WHILE (i <= s AND division_occurred == FALSE) DO
+%     IF (\LM(p) == \LM(g)b) THEN
+% \end{lstlisting}
+
+For comparison, here is the standard long division algorithm for finding the remainder of a polynomial $f$ upon division by a set of polynomials $\{ g_1,\dots,g_s \}$: \par 
+$p:=f$; \par 
+WHILE ($p \ne 0$) DO \par 
+\hspace{20pt} $i:=1$ \par 
+\hspace{20pt} division\_occurred := FALSE \par 
+\hspace{20pt} WHILE ($i \le s$ AND division\_occurred == FALSE) DO \par 
+\hspace{40pt} IF ($\LM(p) == \LM(g_i)b$) THEN \par 
+\hspace{60pt} $p := p - \frac{\LC(p)}{\LC(g_i)}g_ib$  \par 
+\hspace{60pt} division\_occurred := TRUE \par 
+\hspace{40pt} ELSE \par 
+\hspace{60pt} $i := i+1$ \par 
+\hspace{20pt} IF (division\_occurred == FALSE) THEN \par 
+\hspace{40pt} $r := r + \LC(p)\LM(p)$ \par 
+\hspace{40pt} $p := p - \LC(p)\LM(p)$ \par 
+RETURN $r$ \par
+This algorithm cannot be implemented in a purely functional paradigm for a number of reasons. Most fundamentally, each of the instructions is imperative, not declarative. More specifically though, the use of loops and the carrying of state is not allowed. To interpret this into the language of functions and statements, we will have to use recursion instead of loops and express all state as input and output of functions. \par 
 A few notational conventions that we will use for this section:
 \begin{itemize}
   \item Given a set $T$, denote\footnote{This notation is meant to resemble the syntax for a list in Haskell.} the set of finite ordered lists of elements of $T$ as $[T]$. Let $\emptyset \in [T]$ denote the empty list. 
   \item For a list $X \in [T]$, denote the $n$th entry in $X$ as $x_n$ and let $X \setminus x_n$ refer to the list obtained by removing $x_n$ from $X$ and maintaining the relative order of the rest of $X$. 
   \item Suppose $n$ is fixed throughout and let $\bF[\mathbf x] = \bF[x_1,\dots,x_n]$. 
 \end{itemize}
-Let $\p: [\bF[\mathbf x]] \times \left( \bF[\mathbf x] \times \bF[\mathbf x] \right) \to \bF[\mathbf x] \times \bF[\mathbf x]$ be the function defined as 
+With these conventions in hand, we may now present the functional division algorithm. Let $\p: [\bF[\mathbf x]] \times \left( \bF[\mathbf x] \times \bF[\mathbf x] \right) \to \bF[\mathbf x] \times \bF[\mathbf x]$ be the function defined as 
 \[ \p(G,(p,r)) = \begin{cases} (p-\LT(p),r+\LT(p)) &\text{if } G = \emptyset, \\ (p-\frac{\LT(p)}{\LT(g_1)}g_1,r) &\text{if } G \ne \emptyset \and \LT(g_1) \mid \LT(p), \\ \p(G\setminus g_1,(p,r)) &\text{if } G \ne \emptyset \and \LT(g_1) \nmid \LT(p). \end{cases} \]
 Let $\psi: [\bF[\mathbf x]] \times \left( \bF[\mathbf x] \times \bF[\mathbf x] \right) \to \bF[\mathbf x]$ be the function defined as
 \[ \psi(G,(p,r)) = \begin{cases} r &\text{if } p = 0, \\ \psi(G,\p(G,(p,r))) &\text{if } p \ne 0. \end{cases} \]
 Then
 \[ \overline f^{G} = \psi(G,(f,0)). \]
+Notice that the function $\p$ replaces the inner loop in the division algorithm and the function $\psi$ replaces the outer loop. We will now prove that this function is well-defined and its output is indeed the remainder we want. 
 
 \section{Buchberger's Algorithm}
 Continuing with our list of notational conventions from the previous section, we add a few more:
