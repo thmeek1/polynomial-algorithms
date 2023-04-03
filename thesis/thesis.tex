@@ -755,7 +755,7 @@ Now that we have a \lstinline{Coefficient} type and a \lstinline{Monomial} type,
 newtype Polynomial :: RP.Ring -> Nat -> RP.MonOrder -> * where
   MakePoly :: {monMap :: Map.Map (Mon n o) (Coef r)} -> Polynomial r n o
 \end{lstlisting}
-Since polynomials form a ring, it makes sense to make \lstinline{Polynomial} and instance of the \lstinline{Num} typeclass. 
+Throughout this module, \lstinline{Mon} is a type synonym for \lstinline{Monomial}, \lstinline{Coeff} is a type synonym for \lstinline{Coefficient}, and \lstinline{Poly} is a type synonym for \lstinline{Polynomial}. Since polynomials form a ring, it makes sense to make \lstinline{Polynomial} and instance of the \lstinline{Num} typeclass. 
 \begin{lstlisting}[language=Haskell]
 instance Num (Poly r n o) where
     f + g           = makePoly $ Map.unionWith (+) (monMap f) (monMap g)
@@ -765,6 +765,28 @@ instance Num (Poly r n o) where
     fromInteger n   = makePoly $ Map.singleton mempty (fromInteger n)
     negate          = makePoly . Map.map negate . monMap
 \end{lstlisting}
+Polynomial addition is just unioning all the terms together and if any have the same monomial, we add their coefficients. The \lstinline{makePoly} function works like the \lstinline{MakePoly} value constructor except that it filters out terms whose coefficients are 0. \lstinline{abs} and \lstinline{signum} once again don't really make sense for a polynomial ring, but we must define them anyway. An integer $n$ may be represented as a polynomial with the map from the identity monomial to $n$. The negative of a polynomial is given by negating each of the coefficients. The only difficult definition here is multiplication. What we have is only a call to a helper function. Lets take a look at \lstinline{polyMult}. 
+\begin{lstlisting}[language=Haskell]
+f `polyMult` g = if numTerms f < numTerms g
+                 then f `leftPolyMult` g
+                 else g `leftPolyMult` f where
+    f `leftPolyMult` g = Map.foldlWithKey (distrOver g) 0 (monMap f)
+    distrOver g p m c  = p + (leftMultWithCoef m c g)
+\end{lstlisting}
+The reason for the \lstinline{if} statement is efficiency. It is more efficient to multiply polynomials in this manner when the one with fewer terms is on the left. This is because of the way our \lstinline{foldl} works. The \lstinline{leftMultWithCoef} function multiplies a single term by a polynomial. \par 
+The last function we will examine in the \lstinline{Polynomial} module is \lstinline{sPoly}. Given two polynomials $f$ and $g$, \lstinline{sPoly} computes $S(f,g)$ as defined in Chapter 2. One difficulty with this is that $S(f,0)$ is undefined, so how should this function behave if the zero polynomial is one of its inputs? One way to handle potential failure in Haskell is with the \lstinline{Maybe} monad. So instead of \lstinline{sPoly} having an output of type \lstinline{Poly r n o}, its output will be of type \lstinline{Maybe (Poly r n o)}. 
+\begin{lstlisting}[language=Haskell]
+sPoly :: Poly r n o -> Poly r n o -> Maybe (Poly r n o)
+sPoly f g = (-) <$> redf <*> redg where
+    lcm = M.lcmMon <$> leadMonom f <*> leadMonom g
+    fNorm = divideByLeadTerm <$> fmap asPoly lcm <*> leadTerm f >>= id
+    gNorm = divideByLeadTerm <$> fmap asPoly lcm <*> leadTerm g >>= id
+    redf = (*) <$> fNorm <*> Just f
+    redg = (*) <$> gNorm <*> Just g
+\end{lstlisting}
+Recall that the $S$-polynomial of $f$ and $g$ is defined as 
+\[ S(f,g) = \frac{x^\gamma}{\LT(f)} \cdot f - \frac{x^\gamma}{\LT(g)} \cdot g \]
+where $x^\gamma$ is the least common multiple of $\LT(f)$ and $\LT(g)$. In the \lstinline{sPoly} code above, \lstinline{lcm} is $x^\gamma$, \lstinline{fNorm} is $\frac{f}{\LT(f)}$, \lstinline{gNorm} is $\frac{g}{\LT(g)}$, \lstinline{redf} is $\frac{x^\gamma}{\LT(f)} \cdot f$, and \lstinline{redg} is $\frac{x^\gamma}{\LT(g)} \cdot g$. The problem is that \lstinline{leadMonom} and \lstinline{leadTerm} both return \lstinline{Maybe} values, because the zero polynomial has no lead term. The pattern of using \lstinline{<$>} and \lstinline{<*>} as above is a common idiom in Haskell for dealing with monads, especially the \lstinline{Maybe} monad. If I write a function that takes input of type \lstinline{Mon n o} and I give it a \lstinline{Maybe (Mon n o)}, then it won't work. So I could either make sure that all of my terms are \lstinline{Maybe} values all the time or I could write two versions of every function, one for regular terms and one for monadic terms. Neither of these options are acceptable, so instead we use this pattern. Doing this makes it so that if a \lstinline{Nothing} value is encountered, it is passed along until it is dealt with. If all of the values are \lstinline{Just}, then it evaluates the function as normal. It may look confusing if you're not used to the syntax, but it is a great way to handle potential failure in functional programming. 
 
 \section{The Division Algorithm}
 A few notational conventions that we will use for this section:
