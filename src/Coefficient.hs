@@ -75,8 +75,8 @@ instance Num FTwo where
     (FTwo n) + (FTwo m) = FTwo ((n + m) `mod` 2)
     (FTwo n) - (FTwo m) = FTwo ((n - m) `mod` 2)
     (FTwo n) * (FTwo m) = FTwo ((n * m) `mod` 2)
-    abs (FTwo n)        = FTwo (abs n)
-    signum (FTwo n)     = FTwo (signum n)
+    abs (FTwo n)        = error "Finite field elements do not have absolute values."
+    signum (FTwo n)     = error "Finite field elements do not have signs."
     fromInteger n       = FTwo $ n `mod` 2
 
 instance Fractional FTwo where
@@ -87,7 +87,7 @@ instance Fractional FTwo where
         q = fromInteger (denominator n)
 
 instance Readable FTwo where
-    fromString = FTwo . read
+    fromString = FTwo . (`mod` 2) . read
 
 instance Show FThree where
     show (FThree n) = show n
@@ -96,8 +96,8 @@ instance Num FThree where
     (FThree n) + (FThree m) = FThree ((n + m) `mod` 3)
     (FThree n) - (FThree m) = FThree ((n - m) `mod` 3)
     (FThree n) * (FThree m) = FThree ((n * m) `mod` 3)
-    abs (FThree n)          = FThree (abs n)
-    signum (FThree n)       = FThree (signum n)
+    abs (FThree n)          = error "Finite field elements do not have absolute values."
+    signum (FThree n)       = error "Finite field elements do not have signs."
     fromInteger n           = FThree $ n `mod` 3
 
 instance Fractional FThree where
@@ -109,7 +109,7 @@ instance Fractional FThree where
         q = fromInteger (denominator n)
 
 instance Readable FThree where
-    fromString = FThree . read
+    fromString = FThree . (`mod` 3) . read
 
 instance Show FFive where
     show (FFive n) = show n
@@ -118,8 +118,8 @@ instance Num FFive where
     (FFive n) + (FFive m)   = FFive ((n + m) `mod` 5)
     (FFive n) - (FFive m)   = FFive ((n - m) `mod` 5)
     (FFive n) * (FFive m)   = FFive ((n * m) `mod` 5)
-    abs (FFive n)           = FFive (abs n)
-    signum (FFive n)        = FFive (signum n)
+    abs (FFive n)           = error "Finite field elements do not have absolute values."
+    signum (FFive n)        = error "Finite field elements do not have signs."
     fromInteger n           = FFive $ n `mod` 5
 
 instance Fractional FFive where
@@ -133,4 +133,4 @@ instance Fractional FFive where
         q = fromInteger (denominator n)
 
 instance Readable FFive where
-    fromString = FFive . read
+    fromString = FFive . (`mod` 5) . read

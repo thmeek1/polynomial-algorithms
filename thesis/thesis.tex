@@ -668,8 +668,8 @@ instance Num FFive where
     (FFive n) + (FFive m)   = FFive ((n + m) `mod` 5)
     (FFive n) - (FFive m)   = FFive ((n - m) `mod` 5)
     (FFive n) * (FFive m)   = FFive ((n * m) `mod` 5)
-    abs (FFive n)           = FFive (abs n)
-    signum (FFive n)        = FFive (signum n)
+    abs (FFive n)           = error "No absolute value in F5."
+    signum (FFive n)        = error "No sign in F5."
     fromInteger n           = FFive $ n `mod` 5
 \end{lstlisting}
 As we can see, this is once again rather straightforward except that we are performing all operations modulo 5. The rest of the rings here have similar \lstinline{Num} instances. \par 
@@ -761,8 +761,8 @@ Throughout this module, \lstinline{Mon} is a type synonym for \lstinline{Monomia
 instance Num (Poly r n o) where
     f + g           = makePoly $ unionWith (+) (monMap f) (monMap g)
     f * g           = f `polyMult` g
-    abs             = id
-    signum _        = 1
+    abs             = error "Polynomials do not have absolute values."
+    signum _        = error "Polynomials do not have signs."
     fromInteger n   = makePoly $ singleton mempty (fromInteger n)
     negate          = makePoly . map negate . monMap
 \end{lstlisting}
