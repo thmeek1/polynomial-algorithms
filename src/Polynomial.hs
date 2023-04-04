@@ -72,7 +72,7 @@ instance (Ord (Mon n o), Num (Coef r), Arity n) => Num (Poly r n o) where
     f + g           = makePoly $ Map.unionWith (+) (monMap f) (monMap g)
     f * g           = f `polyMult` g
     abs             = error "Polynomials do not have absolute values."
-    signum _        = error "Polynomials do not have signs."
+    signum          = error "Polynomials do not have signs."
     fromInteger n   = makePoly $ Map.singleton mempty (fromInteger n)
     negate          = makePoly . Map.map negate . monMap
 

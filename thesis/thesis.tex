@@ -639,7 +639,7 @@ instance Monad Maybe where
     Nothing  >>= f = Nothing
 \end{lstlisting}
 In the above, \lstinline{f} is a function of type \lstinline{a -> Maybe b}. We can see that binding \lstinline{f} to \lstinline{Just x} is simply \lstinline{f x} where \lstinline{x} has type \lstinline{a} and \lstinline{f x} has type \lstinline{Maybe b}. Binding \lstinline{f} to \lstinline{Nothing} is unsurprisingly \lstinline{Nothing}. \par
-So mathematically, a monad is an endofunctor on $\Hask$ along with two natural transformations making the diagrams we saw at the end of Chater 2 commute. Programatically, a monad is an applicative functor with a \lstinline{return} function and a bind function that satisfy the monadic laws in addition the the functor and applicative laws, but are these two notions the same? To justify naming this typeclass \lstinline{Monad}, there must be some relationship. \par
+So mathematically, a monad is an endofunctor on $\Hask$ along with two natural transformations making the diagrams we saw at the end of Chapter 2 commute. Programmatically, a monad is an applicative functor with a \lstinline{return} function and a bind function that satisfy the monadic laws in addition the the functor and applicative laws, but are these two notions the same? To justify naming this typeclass \lstinline{Monad}, there must be some relationship. \par
 The \lstinline{return} function is just the unit natural transformation $\eta$, but what about bind? Is bind the multiplication natural transformation $\mu$ that we saw before? Perhaps surprisingly, it is not. There is another function that instances of the \lstinline{Monad} typeclass have access to: the \lstinline{join} function.
 \begin{lstlisting}[language=Haskell]
 join :: (Monad m) => m (m a) -> m a
@@ -691,7 +691,7 @@ Encapsulating all computational contexts in monads makes the codebase safer and 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{The Polynomial-Algorithms Package}
-In this section, we will discuss how the \lstinline{polynomial-algorithms} package was implemented. We will take a bottom-up approach, starting with the lower-level modules that define the more basal structures and working our way up to the higher-level modules and user facing functions. The primary data structure in this package is the \lstinline{Polynomial} type, which is built on top of a \lstinline{Monomial} type and a \lstinline{Coefficient} type. This implementation allows for modularity. We may change the implementation of \lstinline{Monomial} or \lstinline{Coefficient} without changing the \lstinline{Polynomial}. \par
+In this section, we will discuss how the \lstinline{polynomial-algorithms} package was implemented. We will take a bottom-up approach, starting with the lower-level modules that define the more basal structures and working our way up to the higher-level modules and user facing functions. The primary data structure in this package is the \lstinline{Polynomial} type, which is built on top of a \lstinline{Monomial} type and a \lstinline{Coefficient} type. This implementation allows for modularity. We may change the implementation of \lstinline{Monomial} or \lstinline{Coefficient} without changing \lstinline{Polynomial}. \par
 The primary purpose of these types is their use in the \lstinline{Algorithms} module. This module contains functions that carry out recursive versions of several algorithms related to polynomials. Polynomial long division and Buchberger's algorithm are the primary features of this module, though it is possible to use the existing \lstinline{Polynomial} type to implement more algorithms in the future.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -768,7 +768,7 @@ newtype Monomial :: Nat -> RP.MonOrder -> * where
     MakeMon :: { degMap :: IntMap Int } -> Monomial n o
 \end{lstlisting}
 This definition is similar to before, but with \lstinline{degMap} in place of \lstinline{degVec}. \par
-We mentioned in Chapter 2 that Haskell used more mathematical terminology than most languages. The next two typeclasses are good examples of that.
+We mentioned at the beginning of Chapter 2 that Haskell used more mathematical terminology than most languages. The next two typeclasses are good examples of that.
 \begin{lstlisting}[language=Haskell]
 class Semigroup a where
     (<>) :: a -> a -> a
@@ -778,34 +778,34 @@ class Semigroup a => Monoid a where
 \end{lstlisting}
 As the names imply, an instance of the \lstinline{Semigroup} typeclass should be a semigroup, and an instance of the \lstinline{Monoid} typeclass should be a monoid. The \lstinline{<>} operator is the semigroup operation, and the \lstinline{mempty} function is the identity in the monoid. The \lstinline{Monomial} type is both a semigroup and a monoid. In the dense representation, this is implemented as
 \begin{lstlisting}[language=Haskell]
-instance Semigroup (Mon n o) where
+instance Semigroup (Monomial n o) where
     a <> b = MakeMon $ zipWith (+) (degVec a) (degVec b)
 
-instance Monoid (Mon n o) where
+instance Monoid (Monomial n o) where
     mempty = MakeMon $ fromList $ replicate nn 0
         where nn = (fromInteger . reflect) (Proxy :: Proxy n)
 \end{lstlisting}
 The interesting part of these definitions is the \lstinline{where nn} clause. This is how the \lstinline{Nat} kind works. If we need to access the numeric value associated with a type-level natural number, we \lstinline{reflect} the value from a \lstinline{Proxy}. This can be a bit difficult to understand, but just know that this is how we actually use the information that we are storing in the type of our data. In this case, the \lstinline{mempty} function needs to know the type of \lstinline{Monomial} it is going to output, otherwise, it won't know how big to make the vector. The sparse version of \lstinline{Monomial} is also an instance of \lstinline{Semigroup} and \lstinline{Monoid}.
 \begin{lstlisting}[language=Haskell]
-instance Semigroup (Mon n o) where
+instance Semigroup (Monomial n o) where
     a <> b = MakeMon $ unionWith (+) (degMap a) (degMap b)
 
-instance Monoid (Mon n o) where
+instance Monoid (Monomial n o) where
     mempty = MakeMon $ empty
 \end{lstlisting}
 Notice that in this case, we didn't need the type-level information to form the monoidal identity. That's a benefit of a sparse representation. The identity is just stored as an empty map. \par
 One other important typeclass is \lstinline{Ord}. This specifies the ordering of a type and how they work with the \lstinline{>} and \lstinline{<} operators in Haskell. In the case of \lstinline{Monomial}, this  of course corresponds to the monomial orderings we discussed in Chapter 2. We want to be able to run algorithms for any of the three main orderings we discussed, so \lstinline{Monomial} is an instance of \lstinline{Ord} with each ordering separately. In the dense implementation, this is accomplished with the following.
 \begin{lstlisting}[language=Haskell]
-instance Ord (Mon n RP.Lex) where
+instance Ord (Monomial n RP.Lex) where
     compare a b = compare (degVec a) (degVec b)
 
-instance Ord (Mon n RP.GLex) where
+instance Ord (Monomial n RP.GLex) where
     compare a b = let aVb = compare (totalDegree a) (totalDegree b)
                   in  if aVb == EQ
                       then compare (degVec a) (degVec b)
                       else aVb
 
-instance Ord (Mon n RP.GRevLex) where
+instance Ord (Monomial n RP.GRevLex) where
     compare a b = let aVb = compare (totalDegree a) (totalDegree b)
                       a'  = reverse $ degVec a
                       b'  = reverse $ degVec b
@@ -826,7 +826,7 @@ instance Num (Poly r n o) where
     f + g           = makePoly $ unionWith (+) (monMap f) (monMap g)
     f * g           = f `polyMult` g
     abs             = error "Polynomials do not have absolute values."
-    signum _        = error "Polynomials do not have signs."
+    signum          = error "Polynomials do not have signs."
     fromInteger n   = makePoly $ singleton mempty (fromInteger n)
     negate          = makePoly . map negate . monMap
 \end{lstlisting}
@@ -843,16 +843,16 @@ The last function we will examine in the \lstinline{Polynomial} module is \lstin
 \begin{lstlisting}[language=Haskell]
 sPoly :: Poly r n o -> Poly r n o -> Maybe (Poly r n o)
 sPoly f g = (-) <$> redf <*> redg where
-    lcm = lcmMon <$> leadMonom f <*> leadMonom g
-    fNorm = divideByLeadTerm <$> fmap asPoly lcm <*> leadTerm f >>= id
-    gNorm = divideByLeadTerm <$> fmap asPoly lcm <*> leadTerm g >>= id
-    redf = (*) <$> fNorm <*> Just f
-    redg = (*) <$> gNorm <*> Just g
+    lcm    = lcmMon <$> leadMonom f <*> leadMonom g
+    fNorm  = divideByLeadTerm <$> fmap asPoly lcm <*> leadTerm f >>= id
+    gNorm  = divideByLeadTerm <$> fmap asPoly lcm <*> leadTerm g >>= id
+    redf   = (*) <$> fNorm <*> Just f
+    redg   = (*) <$> gNorm <*> Just g
 \end{lstlisting}
 Recall that the $S$-polynomial of $f$ and $g$ is defined as
 \[ S(f,g) = \frac{x^\gamma}{\LT(f)} \cdot f - \frac{x^\gamma}{\LT(g)} \cdot g \]
 where $x^\gamma$ is the least common multiple of $\LT(f)$ and $\LT(g)$. In the \lstinline{sPoly} code above, \lstinline{lcm} is $x^\gamma$, \lstinline{fNorm} is $\frac{f}{\LT(f)}$, \lstinline{gNorm} is $\frac{g}{\LT(g)}$, \lstinline{redf} is $\frac{x^\gamma}{\LT(f)} \cdot f$, and \lstinline{redg} is $\frac{x^\gamma}{\LT(g)} \cdot g$. The problem is that \lstinline{leadMonom} and \lstinline{leadTerm} both return \lstinline{Maybe} values, because the zero polynomial has no lead term. The pattern of using \lstinline{<$>} and \lstinline{<*>} as above is a common idiom in Haskell for dealing with monads, especially the \lstinline{Maybe} monad. If I write a function that takes input of type \lstinline{Mon n o} and I give it a \lstinline{Maybe (Mon n o)}, then it won't work. So I could either make sure that all of my terms are \lstinline{Maybe} values all the time or I could write two versions of every function, one for regular terms and one for monadic terms. Neither of these options are acceptable, so instead we use this pattern. Doing this makes it so that if a \lstinline{Nothing} value is encountered, it is passed along until it is dealt with. If all of the values are \lstinline{Just} values, then it evaluates the function as normal. It may look confusing if you're not used to the syntax, but it is a great way to handle potential failure in functional programming. \par
-Now that we have a type that represents polynomials, how do we use it? How do we create a polynomial of in a polynomial ring over $\bQ$ with three variables using the lexicographical monomial order for example? Since these parameters are type-level information, we cannot pass term-level parameters to our constructor functions. The answer is quite elegant. We simply use a type annotation.
+Now that we have a type that represents polynomials, how do we use it? How do we create a polynomial in a polynomial ring over $\bQ$ with three variables using the lexicographical monomial order for example? Since these parameters are type-level information, we cannot pass term-level parameters to our constructor functions. The answer is quite elegant. We simply use a type annotation.
 \begin{lstlisting}[language=Haskell]
 type R = Polynomial RP.Q 3 RP.Lex
 f = (fromString "x^5 + y^4 + z^3 - 1") :: R
@@ -866,7 +866,7 @@ Here, we have a polynomial \lstinline{f} that is a member of the polynomial ring
 \section{The Division Algorithm}
 Giving a formal definition for an algorithm is a bit difficult. Is it a list of instructions? Does that list have to be finite? Does there have to be a relationship between the instructions? What does that relationship have to be? What even is an instruction? It could be argued that the point of the Church-Turing thesis is to give a definition for an algorithm \cite{Kleene1952}. Taking this approach, we could say that an algorithm is a process that can be executed by a Turing machine which will eventually find some terminating state. We know however that the Turing machine model of computation is equivalent to the $\lambda$-calculus model. By our discussion at the beginning of Chapter 3, Turing machines make calculations in an imperative way and $\lambda$-calculus uses a declarative style. So there must be a way to formulate an algorithm with only declarative statements that is equivalent to the standard list of instructions. \par
 As one would expect, this comes down to writing functions. Instead of starting with input, doing operations, then returning output, we instead just define a function that takes the input and returns the output. In principle, this is the same thing. However, the mechanics can be quite different for the reasons discussed in Chapter 3. In this section we present a function, or \emph{functional algorithm}, whose input and output are the same as the division algorithm for multivariate polynomials. In the \lstinline{Algorithms} module, we have implemented a full version that gives the quotients but for brevity, the version shown here only computes the remainder. \par
-For comparison, here is the standard division algorithm for finding the remainder of a polynomial $f$ upon division by a list of polynomials $g_1,\dots,g_s$. \par
+For comparison, here is the standard division algorithm for finding the remainder of a polynomial $f$ upon division by a list of polynomials $(g_1,\dots,g_s)$. \par
 \begin{algorithm}
 \caption{The Division Algorithm in $k[x_1,\dots,x_n]$}
 \begin{algorithmic}
@@ -896,7 +896,7 @@ A few notational conventions that we will use for this section:
 \begin{itemize}
   \item Given a set $T$, denote\footnote{This notation is meant to resemble the syntax for a list in Haskell.} the set of finite ordered lists of elements of $T$ as $[T]$. Let $\emptyset \in [T]$ denote the empty list.
   \item For a list $X \in [T]$, denote the $n$th entry in $X$ as $x_n$ and let $X \setminus x_n$ refer to the list obtained by removing $x_n$ from $X$ and maintaining the relative order of the rest of $X$.
-  \item Let $k$ be a field, suppose $n$ is fixed throughout and let $k[\mathbf x] = k[x_1,\dots,x_n]$.
+  \item Let $k$ be a field, suppose $n$ is fixed throughout, and let $k[\mathbf x] = k[x_1,\dots,x_n]$.
 \end{itemize}
 With these conventions in hand, we may now present the functional division algorithm. Let $\p: [k[\mathbf x]] \times \left( k[\mathbf x] \times k[\mathbf x] \right) \to k[\mathbf x] \times k[\mathbf x]$ be the function defined as
 \[ \p(G,(p,r)) = \begin{cases} (p-\LT(p),r+\LT(p)) &\text{if } G = \emptyset, \\ (p-\frac{\LT(p)}{\LT(g_1)}g_1,r) &\text{if } G \ne \emptyset \and \LT(g_1) \mid \LT(p), \\ \p(G\setminus g_1,(p,r)) &\text{if } G \ne \emptyset \and \LT(g_1) \nmid \LT(p). \end{cases} \]
@@ -937,7 +937,7 @@ rUpdate p r = r + ltp where
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Buchberger's Algorithm}
-The next functional algorithm we will present is Buchberger's algorithm. For comparison, here is the standard version of Buchberger's algorithm for finding a Gr\"obner basis for the ideal $\langle F \rangle$ where $F = f_1,\dots,f_s$. \par
+The next functional algorithm we will present is Buchberger's algorithm. For comparison, here is the standard version of Buchberger's algorithm for finding a Gr\"obner basis for the ideal $\langle F \rangle$ where $F = (f_1,\dots,f_s)$. \par
 \begin{algorithm}
   \caption{Buchberger's Algorithm}
   \begin{algorithmic}
@@ -966,7 +966,7 @@ Let $\p: [k[\mathbf x] \times k[\mathbf x]] \times [k[\mathbf x]] \to [k[\mathbf
 \[ \p(X,G) = \begin{cases} G &\text{if } X = \emptyset, \\ \p(X \setminus x_1,G) &\text{if } X \ne \emptyset \and \overline{Sx_1}^{G} = 0, \\ \p\left(X \setminus x_1 + (\overline{Sx_1}^{G} \times G),G + \overline{Sx_1}^{G}\right) &\text{if } X \ne \emptyset \and \overline{Sx_1}^{G} \ne 0. \end{cases} \]
 Then the function $\gb: [k[\mathbf x]] \to [k[\mathbf x]]$ defined as
 \[ \gb(F) = \p(F \times F,F) \]
-maps a list of polynomials $f_1,\dots,f_t$ to a Gr\"obner basis for $\langle f_1,\dots,f_t \rangle$. As before, we will show that this function is well-defined and that its output is indeed a Gr\"obner basis for the ideal generated by its input.
+maps a list of polynomials $(f_1,\dots,f_t)$ to a Gr\"obner basis for $\langle f_1,\dots,f_t \rangle$. As before, we will show that this function is well-defined and that its output is indeed a Gr\"obner basis for the ideal generated by its input.
 \begin{proof}
   We will first show well-definedness of $\p$ with the input $(F \times F,F)$. This amounts to showing that the first case is eventually evaluated. Because of the way the division algorithm and $S$-polynomials work, adding the reduction of an $S$-polynomial to $G$ will strictly increase the size of the ideal generated by the lead terms of $G$. Because polynomials form a Noetherian ring, this accending chain must have an upper bound. Once that upper bound is met, no more nontrivial $S$-polynomials can be formed from the elements of $G$, so only the second and first cases are possible. Since $X$ is finite, the second case may only happen a finite number of times, so eventually, $X$ will be empty and $\p$ must return a value. \par
   To see that the output of $\p(F \times F,F)$ is a Gr\"obner basis, note that for the first case to be evaluated, every $S$-pair of polynomials in $G$ must reduce to zero upon division by $G$. Thus, by Buchberger's Criterion, the result of $\p(F \times F,F)$ is a Gr\"obner basis for $\langle F \rangle$.
