@@ -32,6 +32,11 @@
 \usepackage{indentfirst}
 % \usepackage{blindtext}
 \usepackage{lipsum}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algtext*{EndIf}
+\algtext*{EndFor}
+\algtext*{EndWhile}
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
@@ -149,9 +154,10 @@ The \lstinline{polynomial-algorithms} package is a computer algebra system writt
 The theory of polynomials is a well-studied field of mathematics, rich with results which provide tools for mathematicians in various areas. Polynomial functions are among the simplest continuous functions to work with analytically or algebraically. Computationally, they are unquestionably the most important class of functions. It is then imperative to have a robust collection of software that can assist the mathematicians who study them. Many tools currently exist for this purpose, from dedicated high-level languages like Macaulay2 and Singular to libraries for general purpose languages like SageMath and SimPy. These software collections are referred to as \textit{computer algebra systems} or CAS's and while most have capabilities beyond polynomial manipulation, it is this feature that is the focus here. \par 
 The implementation of these tools varies greatly. The Macaulay2 engine is written in C++ \cite{M2} while SageMath is built with Python \cite{SageMath}, which in turn often calls C. Their respective interfaces often use a mixture of procedural, object-oriented, functional, and declarative design. This certainly makes sense in the case of SageMath as Python itself hybridizes these approaches. If a CAS is a package for a general purpose language like Python, it should obey the design principles of that language. For dedicated CAS's like Macaulay2 though, this design choice bears consideration. There is a tendency in modern languages to incorporate features which favor a variety of paradigms. The popularity of hybrid languages like Python and JavaScript has encouraged most newer languages like Rust and Go to follow in their footsteps. There are good reasons for this, however there are also benefits to sticking to a single paradigm. \par 
 It is true that these paradigms are more a philosophical way of approaching software design than a well-defined feature of a language and given that, no language can be said to be strictly single-paradigm. It is clear however that certain languages lend themselves to being more compatible with one paradigm than others. For example, Java is generally seen as a paragon of object-oriented programming. Every module contains exactly one class (with potentially many subclasses). Even the drivers are classes and must be instantiated before any program can be executed. One can use Java in a functional way, but doing so defeats the purpose of using Java. This is in contrast to a language like Python where it is difficult to escape the use of objects and classes, but higher order functions like folds and maps are used frequently, as are list comprehensions and other hallmarks of functional programming. At the same time, most programmers' first experience with Python is in writing plain procedural scripts. The freedom offered by such a language enables one to choose the most appropriate approach to the current task, but in doing so, it takes away the cohesiveness and predictability of a more \textit{pure} language like Java. \par 
-Similarly to the way Java is considered a paragon of the object-oriented school, Haskell is often one of the first two languages people think of when one mentions functional programming, with the other of course being Lisp. The functional style offers many advantages over a procedural or object-oriented approach as evidenced in how much modern languages have borrowed from Haskell. Rust's type system strongly resembles that of Haskell \cite{Poss2014} and modern JavaScript libraries like React  leverage functional programming more than any other paradigm. \par 
+Similarly to the way Java is considered a paragon of the object-oriented school, Haskell is often one of the first two languages people think of when one mentions functional programming, the other of course being Lisp. The functional style offers many advantages over a procedural or object-oriented approach as evidenced in how much modern languages have borrowed from Haskell. Rust's type system strongly resembles that of Haskell \cite{Poss2014} and modern JavaScript libraries like React  leverage functional programming more than any other paradigm. \par 
 Haskell and the functional programming style are particularly well-suited to mathematics. The notion of a `function' in procedural programming is a bit of a misnomer. Mathematically, a function $f$ is a domain $X$, a codomain $Y$, and some subset of $X \times Y$ called the graph of $f$. What is the domain of the \lstinline{print()} function in Python? What is its codomain? What is its graph? These inconsistencies vanish in Haskell. A Haskell function \textit{is} a mathematical function. For this reason, mathematicians often regard the functional paradigm as the natural choice for mathematical software. What better way to determine the injectivity of a function than with a function whose injectivity can be determined?! \par 
-It is in this spirit that the \lstinline{polynomial-algorithms} package was written. Taking advantage of the benefits offered by Haskell (as well as a few language extensions), this package offers a Polynomial type that is itself built on Monomial and Coefficient types. Several algorithms, most notably a modified version of Buchberger's algorithm to find a reduced Gr\"obner basis for a list of polynomials, are featured in this software. In addition, its scalability and modularity should provide mathematicians with an invaluable tool when analyzing polynomials. %TODO: Summarize the contents of the thesis here
+It is in this spirit that the \lstinline{polynomial-algorithms} package was written. Taking advantage of the benefits offered by Haskell (as well as a few language extensions), this package offers a \lstinline{Polynomial} type that is itself built on \lstinline{Monomial} and \lstinline{Coefficient} types. Several algorithms, most notably a modified version of Buchberger's algorithm to find a reduced Gr\"obner basis for a list of polynomials, are featured in this software. In addition, its scalability and modularity should provide mathematicians with an invaluable tool when analyzing polynomials. \par 
+In Chapter 2 of this document, we will review the mathematical background necessary for working with this CAS. We will primarily review polynomial theory with an emphasis on monomials, monomial orderings, and ideals. At the end of the chapter, we will spend a little bit of time discussing category theory. In Chapter 3, we will discuss the functional programming paradigm and contrast it with other imperative styles. Emphasis will be put on the Haskell language and its type system. At the end of that chapter, we will look at the functor and monad structures offered by Haskell and see why category theory is a relevant topic of discussion for functional programming. Chapter 4 will be a review of the \lstinline{polynomial-algorithms} implementation, particularly the types it defines and the algorithms it implements. 
 
 \chapter{Mathematical Background}
 One thing that sets functional programming apart from imperative paradigms is its reliance on mathematics. Writing algorithms or any sufficiently complex code will always require some familiarity with mathematics, and the best and most efficient code is often written by programmers competent in mathematical reasoning. However, this quality is even more important when working in a language like Haskell. This fact may be seen just by reading documentation. A good technical writer will always write to their audience. If one is writing a UDP server in Java, it may be assumed that anyone maintaining that server will be familiar with terms like \textit{port}, \textit{buffer}, or \textit{packet}, so they may appear frequently in documentation. If one is writing an operating system in C, terms like \textit{fork} and \textit{process ID} are ubiquitous enough to appear in documentation without explanation. However, one is unlikely to encounter mentions of algebraic ring theory in the documentation for such projects. When using Haskell, this is quite common \cite{Prelude}. \par 
@@ -343,7 +349,7 @@ Given categories $\sC$ and $\sD$, we define $\sD^\sC$ to be the \textbf{functor 
     \item The following diagram commutes for all $a,b \in \sC$ and all $f \in \Hom(a,b)$. 
   \end{itemize}
   \[ \SelectTips{cm}{}\xymatrix@R+1pc@C+1pc{
-      \cF a \ar[r]^{\tau_a} \ar[d]_{\cF f} & \cG a \ar[d]^{\cG f} \\ \cF b \ar[r]_{\tau_b} & \cG b%TODO: ask about a period here.
+      \cF a \ar[r]^{\tau_a} \ar[d]_{\cF f} & \cG a \ar[d]^{\cG f} \\ \cF b \ar[r]_{\tau_b} & \cG b
   } \]
 \end{definition}
 The idea of commuting diagrams is central to the study of category theory. It is a concise way of saying that any allowed composition of maps in the diagram will be equivalent if they share a domain and a codomain. A common categorical technique to prove theorems is called \emph{diagram chasing}. Diagram chasing involves finding equivalent map compositions. \par
@@ -372,7 +378,7 @@ We won't spend much time discussing the finer points of category theory. If teac
 In these diagrams, $\cT\eta,\eta\cT: T \Rightarrow T^2$ are defined as 
 \[ (\cT\eta)_x = \cT(\eta_x) \qquad\and\qquad (\eta\cT)_x = \eta_{\cT x}, \]
 and $\cT\mu,\mu\cT: T^3 \Rightarrow T^2$ are defined as 
-\[ (\cT\mu)_x = \cT(\mu_x) \qquad\and\qquad (\mu\cT)_x = \mu_{\cT x}. \]%TODO: Example?
+\[ (\cT\mu)_x = \cT(\mu_x) \qquad\and\qquad (\mu\cT)_x = \mu_{\cT x}. \]
 The reason for this definition will become apparent in Chapter 3. 
 
 \chapter{Functional Programming}
@@ -478,7 +484,7 @@ Another feature of the \lstinline{DataKinds} extension is type-level natural num
 Vector :: Nat -> * where
     MakeVector :: [Int] -> Vector n
 \end{lstlisting}
-In the above definition, \lstinline{Vector} is a type constructor, \lstinline{MakeVector} is a value constructor, and \lstinline{n} is a type of the \lstinline{Nat} kind which should represent the length of the vector. If we were to define a function \lstinline{VecAdd :: Vector n -> Vector n -> Vector n} that adds two vectors, we wouldn't want a user to be able to add two vectors of different length. The benefit of using \lstinline{Nat} in this construction is that this is already guaranteed by the type system as \lstinline{Vector 3} and \lstinline{Vector 5} are different types. \par %TODO: Emphasize this more?
+In the above definition, \lstinline{Vector} is a type constructor, \lstinline{MakeVector} is a value constructor, and \lstinline{n} is a type of the \lstinline{Nat} kind which should represent the length of the vector. If we were to define a function \lstinline{VecAdd :: Vector n -> Vector n -> Vector n} that adds two vectors, we wouldn't want a user to be able to add two vectors of different length. The benefit of using \lstinline{Nat} in this construction is that this is already guaranteed by the type system as \lstinline{Vector 3} and \lstinline{Vector 5} are different types. \par 
 One more feature of Haskell's type system worth mentioning is \emph{typeclasses}. Typeclasses are like templates for a type, specifying some functions that terms of that class are compatible with. An example is the \lstinline{Show} typeclass which is for types that can easily be converted to strings. The \lstinline{Show} typeclass is defined like this: 
 \begin{lstlisting}[language=Haskell]
 class Show a where
@@ -537,7 +543,7 @@ and to be a true functor, the data above must preserve the identity and preserve
   The category $\Hask$ has the types of Haskell as its objects. For types $t$ and $s$, the set $\Hom(t,s)$ consists of the functions from $t$ to $s$. 
 \end{definition}
 As previously mentioned, the above definition is not entirely accurate. For the purposes of this discussion however, we may assume that this definition holds. For a more thorough treatment of the subject including a list of problems with this definition and ways to get around them, see \cite{Milewski2019}. Using this definition, an instance of \lstinline{Functor} is an endofunctor on the category $\Hask$. \par 
-A special type of functor in this category is an \emph{applicative functor}. We will not go into any detail regarding the implementation or theory of applicative functors except for the following brief definition and description. %TODO: ask about : vs .
+A special type of functor in this category is an \emph{applicative functor}. We will not go into any detail regarding the implementation or theory of applicative functors except for the following brief definition and description.
 \begin{lstlisting}[language=Haskell]
 class Functor f => Applicative f where
     pure  :: a -> f a
@@ -589,7 +595,7 @@ The \lstinline{return} function is just the unit natural transformation $\eta$, 
 join :: (Monad m) => m (m a) -> m a
 join x = x >>= id
 \end{lstlisting}
-It turns out one could define a monad using \lstinline{join} instead of bind and then define bind using \lstinline{join}. This method is equivalent to the standard approach. In fact, the developers of Haskell tried fairly recently to include \lstinline{join} in the definition for \lstinline{Monad} and allow developers the option of defining either \lstinline{join} or bind when creating a \lstinline{Monad} instance. Unfortunately, due to some technical limitations, this is not currently possible, though there have been more recent attempts to fix this problem \cite{Scott2018}. If this technical problem were overcome, we could redefine the \lstinline{Monad} typeclass as 
+It turns out one could define a monad using \lstinline{join} instead of bind and then define bind using \lstinline{join}. This method is equivalent to the standard approach. In fact, the developers of Haskell tried fairly recently to include \lstinline{join} in the definition for \lstinline{Monad} and allow developers the option of defining either \lstinline{join} or bind when creating a \mbox{\lstinline{Monad}} instance. Unfortunately, due to some technical limitations, this is not currently possible, though there have been more recent attempts to fix this problem \cite{Scott2018}. If this technical problem were overcome, we could redefine the \lstinline{Monad} typeclass as 
 \begin{lstlisting}[language=Haskell]
 class Applicative m => Monad m where
     (>>=)   :: m a -> (a -> m b) -> m b
@@ -796,34 +802,33 @@ f = (fromString "x^5 + y^4 + z^3 - 1") :: R
 Here, we have a polynomial \lstinline{f} that is a member of the polynomial ring $\bQ[x,y,z]$ whose monomials use the lexicographical ordering. Now we can analyze \lstinline{f} with the tools in the \lstinline{Algorithms} module. 
 
 \section{The Division Algorithm}
-Giving a formal definition for an algorithm is a bit difficult. Is it a set of instructions? Does that set have to be finite? Does there have to be a relationship between the instructions? What does that relationship have to be? What even is an instruction? It could be argued that what the point of the Church Turing thesis is to give a definition for an algorithm \cite{Kleene1952}. Taking this approach, we could say that an algorithm is a process that can be executed by a Turing machine which will eventually find some terminating state. We know however that the Turing machine model of computation is equivalent to the $\lambda$-calculus model. By our discussion at the beginning of Chapter 3, Turing machines make calculations in an imperative way and $\lambda$-calculus uses a declarative style. So there must be a way to formulate an algorithm with only declarative statements that is equivalent to the standard set of instructions. \par 
-As one would expect, this comes down to writing functions. Instead of starting with input, doing operations, then returning output, we instead just define a function that takes the input and returns the output. In principle, this is the same thing. However, the mechanics can be quite different for the reasons discussed in Chapter 3. In this section we present a function, or \emph{functional algorithm}, whose input and output are the same as the long division algorithm for multivariate polynomials. \par 
-
-% For comparison, here is the standard long division algorithm for finding the remainder of a polynomial \lstinline{f} upon division by a set of polynomials \lstinline{[g_1...g_s]}
-% \begin{lstlisting}
-% p := f;
-% WHILE (p != 0) DO
-%     i := 1;
-%     division_occurred := FALSE;
-%     WHILE (i <= s AND division_occurred == FALSE) DO
-%     IF (\LM(p) == \LM(g)b) THEN
-% \end{lstlisting}
-
-For comparison, here is the standard long division algorithm for finding the remainder of a polynomial $f$ upon division by a set of polynomials $\{ g_1,\dots,g_s \}$: \par 
-$p:=f$; \par 
-WHILE ($p \ne 0$) DO \par 
-\hspace{20pt} $i:=1$ \par 
-\hspace{20pt} division\_occurred := FALSE \par 
-\hspace{20pt} WHILE ($i \le s$ AND division\_occurred == FALSE) DO \par 
-\hspace{40pt} IF ($\LM(p) == \LM(g_i)b$) THEN \par 
-\hspace{60pt} $p := p - \frac{\LC(p)}{\LC(g_i)}g_ib$  \par 
-\hspace{60pt} division\_occurred := TRUE \par 
-\hspace{40pt} ELSE \par 
-\hspace{60pt} $i := i+1$ \par 
-\hspace{20pt} IF (division\_occurred == FALSE) THEN \par 
-\hspace{40pt} $r := r + \LC(p)\LM(p)$ \par 
-\hspace{40pt} $p := p - \LC(p)\LM(p)$ \par 
-RETURN $r$ \par
+Giving a formal definition for an algorithm is a bit difficult. Is it a list of instructions? Does that list have to be finite? Does there have to be a relationship between the instructions? What does that relationship have to be? What even is an instruction? It could be argued that what the point of the Church Turing thesis is to give a definition for an algorithm \cite{Kleene1952}. Taking this approach, we could say that an algorithm is a process that can be executed by a Turing machine which will eventually find some terminating state. We know however that the Turing machine model of computation is equivalent to the $\lambda$-calculus model. By our discussion at the beginning of Chapter 3, Turing machines make calculations in an imperative way and $\lambda$-calculus uses a declarative style. So there must be a way to formulate an algorithm with only declarative statements that is equivalent to the standard list of instructions. \par 
+As one would expect, this comes down to writing functions. Instead of starting with input, doing operations, then returning output, we instead just define a function that takes the input and returns the output. In principle, this is the same thing. However, the mechanics can be quite different for the reasons discussed in Chapter 3. In this section we present a function, or \emph{functional algorithm}, whose input and output are the same as the long division algorithm for multivariate polynomials. In the \lstinline{Algorithms} module, we have implemented a full version that gives the quotients but for brevity, the version shown here only computes the remainder. \par 
+For comparison, here is the standard long division algorithm for finding the remainder of a polynomial $f$ upon division by a list of polynomials $g_1,\dots,g_s$. \par 
+\begin{algorithm}
+\caption{The Division Algorithm in $k[x_1,\dots,x_n]$}
+\begin{algorithmic}
+  \State $p:= f$
+  \State $r:= 0$
+  \While{($p \neq 0$)}
+    \State $i:= 1$
+    \State division\_occurred $:=$ \textbf{false}
+    \While{($i \le s$ \textbf{and} division\_occurred $==$ \textbf{false})}
+      \If{($\LT(g_i)$ divides $\LT(p)$)}
+        \State $p := p - \frac{\LT(p)}{\LT(g_i)}g_i$
+        \State division\_occurred $:=$ \textbf{true}
+      \Else
+        \State $i:= i+1$
+      \EndIf
+    \EndWhile
+    \If{(division\_occurred $==$ \textbf{false})}
+      \State $r := r + \LT(p)$
+      \State $p := p - \LT(p)$
+    \EndIf
+  \EndWhile
+  \State \Return $r$
+\end{algorithmic}
+\end{algorithm}
 This algorithm cannot be implemented in a purely functional paradigm for a number of reasons. Most fundamentally, each of the instructions is imperative, not declarative. More specifically though, the use of loops and the carrying of state is not allowed. To interpret this into the language of functions and statements, we will have to use recursion instead of loops and express all state as input and output of functions. \par 
 A few notational conventions that we will use for this section:
 \begin{itemize}
@@ -837,9 +842,52 @@ Let $\psi: [\bF[\mathbf x]] \times \left( \bF[\mathbf x] \times \bF[\mathbf x] \
 \[ \psi(G,(p,r)) = \begin{cases} r &\text{if } p = 0, \\ \psi(G,\p(G,(p,r))) &\text{if } p \ne 0. \end{cases} \]
 Then
 \[ \overline f^{G} = \psi(G,(f,0)). \]
-Notice that the function $\p$ replaces the inner loop in the division algorithm and the function $\psi$ replaces the outer loop. We will now prove that this function is well-defined and its output is indeed the remainder we want. 
+Notice that the function $\p$ replaces the inner loop in the division algorithm and the function $\psi$ replaces the outer loop. We will now prove that this function is well-defined and its output is indeed the remainder we want. Often with imperative algorithms, we must prove that they eventually terminate. This is essentially what we are doing with the well-definedness part of the proof. For example, if we define a function $f: \bR \to \bR$ as 
+\[ f(x) = 2f(x-1), \]
+then $f$ is not well-defined. We need some base case that the function stems from. Proving well-definedness amounts to showing that the base case is evaluated. We sometimes use terms like \emph{eventually} that imply some temporal element to the function execution. This is not strictly accurate as temporality is a property of imperative algorithms, not functional ones. However, we use this terminology when it makes the explanation clearer. 
+\begin{proof}
+  First we will show that $\psi$ is well-defined. First consider the function $\p$. In the third case, the list $G$ gets strictly smaller. Since $G$ is finite, this can only happen a finite number of times. In the first and second cases, the degree of the polynomial $p$ gets strictly smaller, so that the lead monomials of $p$ at each instance give us a strictly decreasing sequence of monomials. By Theorem 5, this sequence must eventually terminate. So $\p$ must eventually output a tuple whose second entry is 0. Once this happens, $\psi$ will return a value. Thus $\psi$ is well-defined. \par 
+  Next we will show that the output of $\psi(G,(f,0))$ is indeed the normal form of $f$. We know that the standard division algorithm given above is accurate. For a proof of this, see \cite{Cox2015}. We will show that they must give the same output. Observe that in $\p$, the only time that $r$ is updated is when none of the polynomials in $G$ have a lead term that divides the lead term of $p$. This corresponds in the division algorithm to when division\_occurred is false after the inner while loop finishes, which is the only time that $r$ is updated in that algorithm. The term added to $r$ in both cases is the lead term of $p$, which will be the same since $p$ is updated under the same conditions. Thus, $r$ will have the same value when $p=0$, so $\psi(G,(f,0))$ has the same output as the division algorithm. 
+\end{proof}
+Here is the Haskell implementation of this function. Note that the function $\p$ is called \lstinline{innerLoop} and the function $\psi$ is called \lstinline{outerLoop}. 
+\begin{lstlisting}[language=Haskell]
+reduce :: Poly r n o -> [Poly r n o] -> Poly r n o
+reduce f gs = outerLoop gs (f, 0) where
+    outerLoop _gs (0, r) = r
+    outerLoop  gs (p, r) = outerLoop gs $ innerLoop gs (p,r)
+    innerLoop  [] (p,r)  = (dropLeadTerm p, rUpdate p r)
+    innerLoop  gs (p,r)  = if (head gs) `leadTermDivs` p
+                           then (pUpdate p (head gs), r)
+                           else innerLoop (tail gs) (p,r)
+
+pUpdate :: Poly r n o -> Poly r n o -> Poly r n o
+pUpdate p g = p - lth * g where
+    Just ltp = leadTerm p
+    Just lth = ltp `divideByLeadTerm` g
+
+rUpdate :: Poly r n o -> Poly r n o -> Poly r n o
+rUpdate p r = r + ltp where
+    Just ltp = leadTerm p
+\end{lstlisting}
 
 \section{Buchberger's Algorithm}
+The next functional algorithm we will present is Buchberger's algorithm. For comparison, here is the standard version of Buchberger's algorithm for finding a Gr\"obner basis for the ideal $\langle F \rangle$ where $F = f_1,\dots,f_s$. \par 
+\begin{algorithm}
+  \caption{Buchberger's Algorithm}
+  \begin{algorithmic}
+    \State $G:=F$
+    \Repeat
+      \State $G' := G$
+      \For{each pair $\{p,q\} \in G'$}
+        \State $r := \overline{S(p,q)}^{G'}$
+        \If{($r \ne 0$)}
+          \State $G := G \cup \{r\}$
+        \EndIf
+      \EndFor
+    \Until{($G \ne G'$)}
+    \State \Return $G$
+  \end{algorithmic}
+\end{algorithm}
 Continuing with our list of notational conventions from the previous section, we add a few more:
 \begin{itemize}
   \item If $X \in [T]$ and $t \in T$, then $X + t$ is the list $X$ with $t$ concatenated onto the end. 
@@ -852,9 +900,24 @@ Let $\p: [\bF[\mathbf x] \times \bF[\mathbf x]] \times [\bF[\mathbf x]] \to [\bF
 \[ \p(X,G) = \begin{cases} G &\text{if } X = \emptyset, \\ \p(X \setminus x_1,G) &\text{if } X \ne \emptyset \and \overline{Sx_1}^{G} = 0, \\ \p\left(X \setminus x_1 + (\overline{Sx_1}^{G} \times G),G + \overline{Sx_1}^{G}\right) &\text{if } X \ne \emptyset \and \overline{Sx_1}^{G} \ne 0. \end{cases} \]
 Then the function $\gb: [\bF[\mathbf x]] \to [\bF[\mathbf x]]$ defined as
 \[ \gb(F) = \p(F \times F,F) \]
-maps a list of polynomials $f_1,\dots,f_t$ to a Gr\"obner basis for $\langle f_1,\dots,f_t \rangle$.
-
-\section{Efficiency}
+maps a list of polynomials $f_1,\dots,f_t$ to a Gr\"obner basis for $\langle f_1,\dots,f_t \rangle$. As before, we will show that this function is well-defined and that its output is indeed a Gr\"obner basis for the ideal generated by its input. 
+\begin{proof}
+  We will first show well-definedness of $\p$ with the input $(F \times F,F)$. This amounts to showing that the first case is evantually evaluated. Because of the way $S$-polynomials are defined, adding one to $G$ will strictly increase the size of the ideal generated by $G$. Because polynomials form a Noetherian ring, this accending chain must have an upper bound. Once that upper bound is met, no more nontrivial $S$-polynomials can be formed from the elements of $G$, so only the second and first cases are possible. Since $X$ is finite, the second case may only happen a finite number of times, so eventually, $X$ will be empty and $\p$ must return a value. \par 
+  To see that the output of $\p(F \times F,F)$ is a Gr\"obner basis, note that for the first case to be evaluated, every $S$-pair of polynomials in $G$ must reduce to zero upon division by $G$. Thus, by Buchberger's Criterion, the result of $\p(F \times F,F)$ is a Gr\"obner basis for $\langle F \rangle$. 
+\end{proof}
+Here is the Haskell implementation of this function. Note that the function $\p$ is called \lstinline{cycle}. 
+\begin{lstlisting}[language=Haskell]
+basis :: [Poly r n o] -> [Poly r n o]
+basis fs = cycle [(f1,f2) | f1 <- fs, f2 <- fs] fs where
+    cycle [] gs = gs
+    cycle pairs gs = cycle (tail pairs ++ newPairs) (gs ++ newPoly)
+        where
+            (g1,g2)  = head pairs
+            r        = fromMaybe 0 (sPoly g1 g2) `reduce` gs
+            newPoly  = if r /= 0 then [normalize r] else []
+            newPairs = if r /= 0 then [(r,g) | g <- gs] else []
+\end{lstlisting}
+There are several performance optimizations that may be applied to Buchberger's algorithm. We have implemented some of these, but omit them here for brevity. 
 
 \chapter{Conclusion}
 

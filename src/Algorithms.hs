@@ -82,9 +82,9 @@ basis :: (Ord (Mon n o), Fractional (Coef r), Arity n) => [Poly r n o] -> [Poly 
 basis fs = cycle [(f1,f2) | f1 <- fs, f2 <- fs] fs where
     cycle [] gs = gs
     cycle pairs gs = cycle (tail pairs ++ newPairs) (gs ++ newPoly) where
-        (g1,g2) = head pairs
-        r = fromMaybe 0 (P.sPoly g1 g2) /% gs
-        newPoly = if r /= 0 then [P.normalize r] else []
+        (g1,g2)  = head pairs
+        r        = fromMaybe 0 (P.sPoly g1 g2) /% gs
+        newPoly  = if r /= 0 then [P.normalize r] else []
         newPairs = if r /= 0 then [(r,g) | g <- gs] else []
 
 {--

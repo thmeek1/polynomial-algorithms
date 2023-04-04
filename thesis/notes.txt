@@ -47,7 +47,7 @@ polynomial-algorithms:
     Poly: Num, polyMult, sPoly
 
 Algorithms:
-    stateless*
+    stateless
     Bonus benefit: the weirdness with = vs := vs == goes away.*
 
 Conclusion:
