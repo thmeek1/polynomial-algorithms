@@ -156,7 +156,7 @@ I am grateful to live in a world where knowledge is more accessible than it has 
 %% Abstract
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The \lstinline{polynomial-algorithms} package is a computer algebra system written in Haskell. This package implements a polynomial type for use in several algorithms including a recursive version of Buchberger's algorithm for finding the reduced Gr\"obner basis of a polynomial ideal. As it is written in Haskell, the \lstinline{polynomial-algorithms} package naturally uses a purely functional design philosophy. We will contrast this with imperative approaches using more traditional languages. %TODO
+The \lstinline{polynomial-algorithms} package is a computer algebra system written in Haskell. This package implements a polynomial type for use in several algorithms including a recursive version of Buchberger's algorithm for finding the reduced Gr\"obner basis of a polynomial ideal. As it is written in Haskell, the \lstinline{polynomial-algorithms} package naturally uses a purely functional design philosophy. We will contrast this with imperative approaches using more traditional languages.
 
 \chapters
 
@@ -205,7 +205,7 @@ This viewpoint of polynomials as a formal combination of monomials rather than a
 \begin{definition}
   A \textbf{monomial} in $x_1,\dots,x_n$ is a product of the form
   \[ x_1^{\alpha_1} \cdot x_2^{\alpha_2} \cdots x_n^{\alpha_n}, \]
-  where all of the exponents $\alpha_1,\dots,\alpha_n$ are nonnegative integers. The \textbf{multidegree} of this monomial is the $n$-tuple $(\alpha_1,\alpha_2,\dots) \in \bZ_{\ge0}^n$. The \textbf{total degree} of this monomial is the sum $\alpha_1 + \dots + \alpha_n$.
+  where all of the exponents $\alpha_1,\dots,\alpha_n$ are nonnegative integers. The \textbf{multidegree} of this monomial is the $n$-tuple $(\alpha_1,\dots,\alpha_n) \in \bZ_{\ge0}^n$. The \textbf{total degree} of this monomial is the sum $\alpha_1 + \dots + \alpha_n$.
 \end{definition}
 We can simplify the notation for monomials as follows: let $\alpha = (\alpha_1,\dots,\alpha_n)$ be an $n$-tuple of nonnegative integers. Then we set
 \[ x^\alpha = x_1^{\alpha_1} \cdot x_2^{\alpha_2} \cdots x_n^{\alpha_n}. \]
@@ -309,7 +309,7 @@ We mentioned polynomial long division before when making the case for why a mono
 \begin{definition}
   Fix a monomial order on the polynomial ring $k[x_1,\dots,x_n]$. A finite subset $G = \{ g_1,\dots,g_t \}$ of an ideal $I \sbs k[x_1,\dots,x_n]$ different from $\{0\}$ is said to be a \textbf{Gr\"obner basis} if
   \[ \langle \LT(g_1), \dots, \LT(g_t) \rangle = \langle \LT(I) \rangle. \]
-  Using the convention that $\langle \emptyset \rangle = {0}$, we define the empty set $\emptyset$ to be the Gr\"obner basis of the zero ideal $\{0\}$.
+  Using the convention that $\langle \emptyset \rangle = \{0\}$, we define the empty set $\emptyset$ to be the Gr\"obner basis of the zero ideal $\{0\}$.
 \end{definition}
 Another way to state this definition is that the set $G = \{ g_1,\dots,g_t \}$ is a Gr\"obner basis for $I$ if the leading term of any element of $I$ is divisible by one of the $\LT(g_i)$. As one would expect from the terminology, a Gr\"obner basis is a generating set for the ideal $I$ in the definition above and it can be shown that every ideal has a Gr\"obner basis. This is lucky because much of modern polynomial theory and algebraic geometry depends on the existence of such a basis. This is partly because the Gr\"obner basis is the set we needed to guarantee uniqueness of the remainder in the division algorithm. \par
 Another feature of Gr\"obner bases is a solution to the so called \emph{ideal membership problem}. For a proof of the following theorem, see \cite{Cox2015}.
@@ -359,13 +359,13 @@ Apart from providing more elegant solutions to mathematical problems found in ot
 The prototypical example of a category is $\mathsf{Set}$ whose objects are sets and whose morphisms are the functions between those sets. In many categories, the morphisms are set-functions of some kind, but that is not always the case.
 \begin{example}
   Recall that a poset is a set along with a relation $\le$ that is reflexive, transitive, and antisymmetric. Let $(S,\le)$ be a poset. Then we may define a category $\mathsf S$ that has the elements of $S$ as its objects. If $a \le b$ then let $\Hom(a,b)$ be the singleton consisting of the element $(a,b) \in S \times S$. Otherwise, let $\Hom(a,b)=\emptyset$. Define the composition law as $(a,b)(b,c)=(a,c)$. As each hom set has at most a single element, there is only one choice for the identity morphism. \par
-  If $(a,b)$ and $(b,c)$ both exist, then we must have that $a \le b \le c$, so since $\le$ is transitive, $(a,c)$ exists and so composition is well defined. Since $\le$ is reflexive, $(a,a) \in \Hom(a,a)$ and
+  If $(a,b)$ and $(b,c)$ both exist, then we must have that $a \le b$ and $b \le c$, so since $\le$ is transitive, $(a,c)$ exists and so composition is well defined. Since $\le$ is reflexive, $(a,a) \in \Hom(a,a)$ and
   \[ (a,a)(a,b) = (a,b) = (a,b)(b,b), \]
   so $(a,a)$ does serve as the identity on $a$. Also observe that
   \[ ((a,b)(b,c))(c,d) = (a,c)(c,d) = (a,d) = (a,b)(b,d) = (a,b)((b,c)(c,d)), \]
   so composition is associative. This shows that $\mathsf S$ satisfies the axioms for a category.
 \end{example}
-It is common in mathematics to introduce some kind of object that is only important because of the functions between objects of that kind. Linear algebra may be the study of vector spaces, but the important part is the linear maps. Topology may be concerned with open sets, but it is the continuous maps that topologists really care about. Group homomorphisms are in a sense are much more important than groups themselves. It is no different with categories. The interesting part is the maps between categories. The even more interesting part is the maps between those maps.
+It is common in mathematics to introduce some kind of object that is only important because of the functions between objects of that kind. Linear algebra may be the study of vector spaces, but the important part is the linear maps. Topology may be concerned with open sets, but it is the continuous maps that topologists really care about. Group homomorphisms are in a sense much more important than groups themselves. It is no different with categories. The interesting part is the maps between categories. The even more interesting part is the maps between those maps.
 \begin{definition}
   A \textbf{functor} $\cF: \sC \to \sD$ between categories $\sC$ and $\sD$ consists of the following data:
   \begin{itemize}
@@ -425,7 +425,7 @@ The reason for this definition will become apparent at the end of Chapter 3.
 
 \chapter{Functional Programming}
 Among the key features of a language like Haskell is the guarantee of functional purity. A function in Haskell does exactly one thing. It returns a value. That's it. It cannot alter the state of the program. It cannot react to external state. It cannot cause anything to happen other than returning that value. This makes a Haskell program far more predictable than any program written outside of a purely functional paradigm. This is particularly useful when writing multithreaded code. The inability for a thread to alter any resource that another thread is using simplifies the task tremendously. \par
-In this way, software written in Haskell, or indeed any purely functional language, resembles mathematics quite closely. As we have previously mentioned, a mathematical function is merely a domain set, a codomain set, and a graph. When thinking of a function as \emph{doing something}, the only thing it \emph{does} is transform a domain element into its associated codomain element. However, the very notion of a function doing anything is a bit of an abuse of language. Given sets $X$ and $Y$, the existence of a function $f: X \to Y$ gives us a way to refer to certain elements of $Y$ as $f(x)$ for some $x \in X$. It doesn't really preform an action. This is in contrast to a function in the computer programming sense. A function \lstinline{foo} in the Python language certainly does something. When \lstinline{foo} is called, it preforms its task and then it returns if and when it finishes. This is really the most fundamental difference in functional programming and imperative programming. \par %TODO: definitions,statements
+In this way, software written in Haskell, or indeed any purely functional language, resembles mathematics quite closely. As we have previously mentioned, a mathematical function is merely a domain set, a codomain set, and a graph. When thinking of a function as \emph{doing something}, the only thing it \emph{does} is transform a domain element into its associated codomain element. However, the very notion of a function doing anything is a bit of an abuse of language. Given sets $X$ and $Y$, the existence of a function $f: X \to Y$ gives us a way to refer to certain elements of $Y$ as $f(x)$ for some $x \in X$. It doesn't really preform an action. This is in contrast to a function in the computer programming sense. A function \lstinline{foo} in the Python language certainly does something. When \lstinline{foo} is called, it preforms its task and then it returns if and when it finishes. This is really the most fundamental difference in functional programming and imperative programming. \par
 Recall the difference between a declarative sentence and an imperative sentence. The sentence ``Steve has twelve eggs." is a declarative sentence while the sentence ``Give Steve twelve eggs." is an imperative sentence. The foundations of mathematics are built on the use of statements. A statement is a declarative sentence with a well-defined (or unambiguous) truth value \cite{Bond1999}. Theorems are statements. Definitions are statements. A proof is a collection of statements. Mathematicians deal predominantly with statements. If we encounter a question, we first rephrase it as a statement before we attempt to verify its veracity. However, imperative programmers are more accustomed to dealing with imperative sentences (indeed, it is easy to forget that this is where the term \emph{imperative programming} comes from.) An instruction is an imperative sentence. A traditional algorithm is a sequence of imperative sentences. \lstinline{print("Hello world")} is an imperative sentence. It could be said that imperative programming is as much founded on the unambiguous imperative sentence as mathematics is founded on the unambiguous declarative sentence. \par
 The procedural and object oriented design philosophies are both considered imperative styles. Functional programming is often considered a declarative style. What this means is that a line of Java or C code is usually meant to be read as an imperative sentence, while a line of Haskell code is meant to be read as a declarative sentence. This allows Haskell syntax to resemble the syntax of mathematics much more closely than other languages. For example, say we want to construct a list containing the first ten perfect squares. In C, this task amounts to a series of instructions:
 \begin{lstlisting}[language=C]
@@ -865,8 +865,8 @@ Here, we have a polynomial \lstinline{f} that is a member of the polynomial ring
 
 \section{The Division Algorithm}
 Giving a formal definition for an algorithm is a bit difficult. Is it a list of instructions? Does that list have to be finite? Does there have to be a relationship between the instructions? What does that relationship have to be? What even is an instruction? It could be argued that the point of the Church-Turing thesis is to give a definition for an algorithm \cite{Kleene1952}. Taking this approach, we could say that an algorithm is a process that can be executed by a Turing machine which will eventually find some terminating state. We know however that the Turing machine model of computation is equivalent to the $\lambda$-calculus model. By our discussion at the beginning of Chapter 3, Turing machines make calculations in an imperative way and $\lambda$-calculus uses a declarative style. So there must be a way to formulate an algorithm with only declarative statements that is equivalent to the standard list of instructions. \par
-As one would expect, this comes down to writing functions. Instead of starting with input, doing operations, then returning output, we instead just define a function that takes the input and returns the output. In principle, this is the same thing. However, the mechanics can be quite different for the reasons discussed in Chapter 3. In this section we present a function, or \emph{functional algorithm}, whose input and output are the same as the long division algorithm for multivariate polynomials. In the \lstinline{Algorithms} module, we have implemented a full version that gives the quotients but for brevity, the version shown here only computes the remainder. \par
-For comparison, here is the standard long division algorithm for finding the remainder of a polynomial $f$ upon division by a list of polynomials $g_1,\dots,g_s$. \par
+As one would expect, this comes down to writing functions. Instead of starting with input, doing operations, then returning output, we instead just define a function that takes the input and returns the output. In principle, this is the same thing. However, the mechanics can be quite different for the reasons discussed in Chapter 3. In this section we present a function, or \emph{functional algorithm}, whose input and output are the same as the division algorithm for multivariate polynomials. In the \lstinline{Algorithms} module, we have implemented a full version that gives the quotients but for brevity, the version shown here only computes the remainder. \par
+For comparison, here is the standard division algorithm for finding the remainder of a polynomial $f$ upon division by a list of polynomials $g_1,\dots,g_s$. \par
 \begin{algorithm}
 \caption{The Division Algorithm in $k[x_1,\dots,x_n]$}
 \begin{algorithmic}
@@ -896,19 +896,19 @@ A few notational conventions that we will use for this section:
 \begin{itemize}
   \item Given a set $T$, denote\footnote{This notation is meant to resemble the syntax for a list in Haskell.} the set of finite ordered lists of elements of $T$ as $[T]$. Let $\emptyset \in [T]$ denote the empty list.
   \item For a list $X \in [T]$, denote the $n$th entry in $X$ as $x_n$ and let $X \setminus x_n$ refer to the list obtained by removing $x_n$ from $X$ and maintaining the relative order of the rest of $X$.
-  \item Suppose $n$ is fixed throughout and let $\bF[\mathbf x] = \bF[x_1,\dots,x_n]$.
+  \item Let $k$ be a field, suppose $n$ is fixed throughout and let $k[\mathbf x] = k[x_1,\dots,x_n]$.
 \end{itemize}
-With these conventions in hand, we may now present the functional division algorithm. Let $\p: [\bF[\mathbf x]] \times \left( \bF[\mathbf x] \times \bF[\mathbf x] \right) \to \bF[\mathbf x] \times \bF[\mathbf x]$ be the function defined as
+With these conventions in hand, we may now present the functional division algorithm. Let $\p: [k[\mathbf x]] \times \left( k[\mathbf x] \times k[\mathbf x] \right) \to k[\mathbf x] \times k[\mathbf x]$ be the function defined as
 \[ \p(G,(p,r)) = \begin{cases} (p-\LT(p),r+\LT(p)) &\text{if } G = \emptyset, \\ (p-\frac{\LT(p)}{\LT(g_1)}g_1,r) &\text{if } G \ne \emptyset \and \LT(g_1) \mid \LT(p), \\ \p(G\setminus g_1,(p,r)) &\text{if } G \ne \emptyset \and \LT(g_1) \nmid \LT(p). \end{cases} \]
-Let $\psi: [\bF[\mathbf x]] \times \left( \bF[\mathbf x] \times \bF[\mathbf x] \right) \to \bF[\mathbf x]$ be the function defined as
+Let $\psi: [k[\mathbf x]] \times \left( k[\mathbf x] \times k[\mathbf x] \right) \to k[\mathbf x]$ be the function defined as
 \[ \psi(G,(p,r)) = \begin{cases} r &\text{if } p = 0, \\ \psi(G,\p(G,(p,r))) &\text{if } p \ne 0. \end{cases} \]
 Then
 \[ \overline f^{G} = \psi(G,(f,0)). \]
 Notice that the function $\p$ replaces the inner loop in the division algorithm and the function $\psi$ replaces the outer loop. We will now prove that this function is well-defined and its output is indeed the remainder we want. Often with imperative algorithms, we must prove that they eventually terminate. This is essentially what we are doing with the well-definedness part of the proof. For example, if we define a function $f: \bR \to \bR$ as
 \[ f(x) = 2f(x-1), \]
 then $f$ is not well-defined. We need some base case that the function stems from. Proving well-definedness amounts to showing that the base case is evaluated. We sometimes use terms like \emph{eventually} that imply some temporal element to the function execution. This is not strictly accurate as temporality is a property of imperative algorithms, not functional ones. However, we use this terminology when it makes the explanation clearer.
-\begin{proof}%TODO: degree of p doesn't decrease
-  First we will show that $\psi$ is well-defined. First consider the function $\p$. In the third case, the list $G$ gets strictly smaller. Since $G$ is finite, this can only happen a finite number of times. In the first and second cases, the degree of the polynomial $p$ gets strictly smaller, so that the lead monomials of $p$ at each instance give us a strictly decreasing sequence of monomials. By Theorem 5, this sequence must eventually terminate. So $\p$ must eventually output a tuple whose second entry is 0. Once this happens, $\psi$ will return a value. Thus $\psi$ is well-defined. \par
+\begin{proof}
+  First we will show that $\psi$ is well-defined. First consider the function $\p$. In the third case, the list $G$ gets strictly smaller. Since $G$ is finite, this can only happen a finite number of times. In the first and second cases, the lead monomial of $p$ gets strictly smaller with respect to the monomial ordering, so that the lead monomials of $p$ at each instance give us a strictly decreasing sequence of monomials. By Theorem 5, this sequence must eventually terminate. So $\p$ must eventually output a tuple whose second entry is 0. Once this happens, $\psi$ will return a value. Thus $\psi$ is well-defined. \par
   Next we will show that the output of $\psi(G,(f,0))$ is indeed the normal form of $f$. We know that the standard division algorithm given above is accurate. For a proof of this, see \cite{Cox2015}. We will show that they must give the same output. Observe that in $\p$, the only time that $r$ is updated is when none of the polynomials in $G$ have a lead term that divides the lead term of $p$. This corresponds in the division algorithm to when division\_occurred is false after the inner while loop finishes, which is the only time that $r$ is updated in that algorithm. The term added to $r$ in both cases is the lead term of $p$, which will be the same since $p$ is updated under the same conditions. Thus, $r$ will have the same value when $p=0$, so $\psi(G,(f,0))$ has the same output as the division algorithm.
 \end{proof}
 Here is the Haskell implementation of this function. Note that the function $\p$ is called \lstinline{innerLoop} and the function $\psi$ is called \lstinline{outerLoop}.
@@ -960,11 +960,11 @@ Continuing with our list of notational conventions from the previous section, we
   \item If $X \in [T]$ and $Y \in [T]$, then $X + Y$ is the list with all elements of $Y$ concatenated onto the end of $X$ maintaining the order of each.
   \item For $y \in T$ and $X \in [T]$, the product $y \times X \in [T \times T]$ is the list of tuples given by $((y,x) \mid x \in X)$ where we maintain the order in $X$.
   \item For $X,Y \in [T]$, the product $X \times Y \in [T \times T]$ is the list of tuples given by $((x,y) \mid x \in X, y \in Y)$ in some order.
-  \item For a tuple $x = (f,g) \in \bF[\mathbf x] \times \bF[\mathbf x]$, we denote the $S$-polynomial $S(f,g)$ as $Sx$.
+  \item For a tuple $x = (f,g) \in k[\mathbf x] \times k[\mathbf x]$, we denote the $S$-polynomial $S(f,g)$ as $Sx$.
 \end{itemize}
-Let $\p: [\bF[\mathbf x] \times \bF[\mathbf x]] \times [\bF[\mathbf x]] \to [\bF[\mathbf x]]$ be the function defined as
+Let $\p: [k[\mathbf x] \times k[\mathbf x]] \times [k[\mathbf x]] \to [k[\mathbf x]]$ be the function defined as
 \[ \p(X,G) = \begin{cases} G &\text{if } X = \emptyset, \\ \p(X \setminus x_1,G) &\text{if } X \ne \emptyset \and \overline{Sx_1}^{G} = 0, \\ \p\left(X \setminus x_1 + (\overline{Sx_1}^{G} \times G),G + \overline{Sx_1}^{G}\right) &\text{if } X \ne \emptyset \and \overline{Sx_1}^{G} \ne 0. \end{cases} \]
-Then the function $\gb: [\bF[\mathbf x]] \to [\bF[\mathbf x]]$ defined as
+Then the function $\gb: [k[\mathbf x]] \to [k[\mathbf x]]$ defined as
 \[ \gb(F) = \p(F \times F,F) \]
 maps a list of polynomials $f_1,\dots,f_t$ to a Gr\"obner basis for $\langle f_1,\dots,f_t \rangle$. As before, we will show that this function is well-defined and that its output is indeed a Gr\"obner basis for the ideal generated by its input.
 \begin{proof}
@@ -984,13 +984,13 @@ basis fs = cycle [(f1,f2) | f1 <- fs, f2 <- fs] fs where
             newPairs = if r /= 0 then [(r,g) | g <- gs] else []
 \end{lstlisting}
 There are several performance optimizations that may be applied to Buchberger's algorithm. We have implemented some of these, but omit them here for brevity. \par 
-The \lstinline{polynomial-algorithms} package is still a work in progress. Some possible ideas for future implementation are adopting the Buchberger's algorithm and the division algorithm to make use of the state monad, rewriting the \lstinline{Monomial} and \lstinline{Coefficient} types to be type families, or implementing a noncommutative version of the \lstinline{Monomial} type. Implementing any of these features would improve its already significant utility.
+The \lstinline{polynomial-algorithms} package is still a work in progress. Some possible ideas for future implementation are adapting the current version of Buchberger's algorithm and the division algorithm to make use of the state monad, rewriting the \lstinline{Monomial} and \lstinline{Coefficient} types to be type families, implementing a noncommutative version of the \lstinline{Monomial} type, or adding support for quotients of polynomial rings. Implementing any of these features would improve its already significant utility.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Conclusion
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\chapter{Conclusion}%TODO: ask about other occurrences of 'long division'
+\chapter{Conclusion}
 The \lstinline{polynomial-algorithms} package is a valuable tool not only for working with polynomials, but in serving as a template for how to write mathematical software using functional design. It's no accident that functional programming is becoming more prevalent in industry applications. The spam filter used by Meta for many of their products is written primarily in Haskell \cite{Marlow2015}. Even the Java language has incorporated functional features since version 7. The most recent trends in computing invariably require design that favors composition. It could be argued that machine learning, artificial intelligence, and quantum computing are all applications that more naturally fit into a functional programming paradigm than an imperative or even hybrid design. With this in mind, the \lstinline{polynomial-algorithms} package offers a useful way to analyze polynomials using a design philosophy that is more relevant now than ever.
 
 \bibliographystyle{amsplain}
