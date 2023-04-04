@@ -48,9 +48,9 @@ polynomial-algorithms:
 
 Algorithms:
     stateless
-    Bonus benefit: the weirdness with = vs := vs == goes away.*
+    the weirdness with = vs := vs == goes away.*
 
 Conclusion:
-    Future options*
-    Quantum Computing?*
-    Facebook Spam filter?*
+    Future options
+    Quantum Computing?
+    Facebook Spam filter?

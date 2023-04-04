@@ -7,5 +7,6 @@ Use type families to:
 Write a test suite.
 Memoize the lead term of Polynomial.
 Implement the read typeclass.
+Implement noncommutative monomials.
 Implement recursive version of the F4 algorithm.
 Parallelize the F4 algorithm.
