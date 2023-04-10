@@ -1,0 +1,17 @@
+title:
+    thank everyone, especially dr. turkett
+    for the past year...
+    define CAS
+    it should come as no surprise...
+
+linguistics
+
+why?
+    Why is my CAS different?
+    programming languages and design philosophies
+    a paradigm for how one approaches software design
+    functional means "real" functions
+    something that proceedural and oop have in common is imperative
+    another language (math)
+
+polynomials
