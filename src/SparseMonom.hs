@@ -39,9 +39,10 @@ lexCompare :: Mon n o -> Mon n o -> Ordering
 a `lexCompare` b = (degList a) `compList` (degList b) where
     degList = IMap.assocs . degMap
 
-revLexCompare :: Mon n o -> Mon n o -> Ordering-- TODO: Fix bug!
+revLexCompare :: forall n o. Arity n => Mon n o -> Mon n o -> Ordering
 a `revLexCompare` b = (revList b) `compList` (revList a) where
-    revList = reverse . IMap.assocs . degMap
+    revList = map (\(x,y) -> (nn - 1 - x,y)) . reverse . IMap.assocs . degMap
+    nn = (fromInteger . reflect) (Proxy :: Proxy n)
 
 compList :: [(Int,Int)] -> [(Int,Int)] -> Ordering
 compList [] [] = EQ
@@ -80,7 +81,7 @@ instance Ord (Mon n RP.GLex) where
                         then a `lexCompare` b
                         else aVb
 
-instance Ord (Mon n RP.GRevLex) where
+instance Arity n => Ord (Mon n RP.GRevLex) where
     a `compare` b = let aVb = (totalDegree a) `compare` (totalDegree b)
                     in  if aVb == EQ
                         then a `revLexCompare` b
