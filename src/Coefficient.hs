@@ -87,7 +87,8 @@ instance Fractional FTwo where
         q = fromInteger (denominator n)
 
 instance Readable FTwo where
-    fromString = FTwo . (`mod` 2) . read
+    fromString "" = FTwo 1
+    fromString s  = (FTwo . (`mod` 2) . read) s
 
 instance Show FThree where
     show (FThree n) = show n
@@ -109,7 +110,8 @@ instance Fractional FThree where
         q = fromInteger (denominator n)
 
 instance Readable FThree where
-    fromString = FThree . (`mod` 3) . read
+    fromString "" = FThree 1
+    fromString s  = (FThree . (`mod` 3) . read) s
 
 instance Show FFive where
     show (FFive n) = show n
@@ -133,4 +135,5 @@ instance Fractional FFive where
         q = fromInteger (denominator n)
 
 instance Readable FFive where
-    fromString = FFive . (`mod` 5) . read
+    fromString "" = FFive 1
+    fromString s  = (FFive . (`mod` 5) . read) s

@@ -13,7 +13,7 @@
 % \usetheme{Bergen}
 % \usetheme{Marburg}
 %\usecolortheme{beetle}
-% \setbeamertemplate{itemize item}[ball]
+\setbeamertemplate{page number in head/foot}{}
 
 \usepackage{mathtools,amsthm,amssymb,mathrsfs}
 \usepackage{graphicx}
@@ -314,6 +314,11 @@
 \end{frame}
 
 \begin{frame}{Polynomials}
+  Let $I = \langle f_1,\dots,f_t \rangle \sbs k[x_1,\dots,x_n]$.
+  \uncover<2->{\[ \langle \LT(f_1),\dots,\LT(f_t) \rangle \sbs \langle \LT(I) \rangle. \]}
+\end{frame}
+
+\begin{frame}{Polynomials}
   \begin{itemize}
     \item $f_1=x^3-2xy$.
     \item<2-> $f_2=x^2y-2y^2+x$.
@@ -321,6 +326,7 @@
     \item<4-> $x \cdot f_2 - y \cdot f_1 = x^2$ so $x^2 \in I$.
     \item<5-> $x^2 \in \langle \LT(I) \rangle$.
     \item<6-> $\LT(f_1) \nmid x^2$ and $\LT(f_2) \nmid x^2$ so $x^2 \notin \langle \LT(f_1), \LT(f_2) \rangle$.
+    \item <7-> $\langle \LT(I) \rangle \not\sbs \langle \LT(f_1), \LT(f_2) \rangle$.
   \end{itemize}
 \end{frame}
 
@@ -387,7 +393,103 @@
 \end{frame}
 
 \begin{frame}{Categories}
+  \begin{definition}
+    A \textbf{functor} $\cF: \sC \to \sD$ is:
+    \begin{itemize}
+      \item An object $\cF x \in \sD$ for each object $x \in \sC$.
+      \item A morphism $\cF f \in \Hom(\cF a,\cF b)$ for each morphism $f \in \Hom(a,b)$.
+      \item For any composable pair of morphisms $f,g \in \sC$, $(\cF f) (\cF g) = \cF(gf)$.
+      \item For each object $x \in \sC$, $\cF(1_x) = 1_{\cF x}$.
+    \end{itemize}
+  \end{definition}
+\end{frame}
 
+\begin{frame}{Categories}
+  \begin{definition}
+    Given functors $\cF, \cG: \sC \to \sD$, a \textbf{natural transformation} $\tau: \cF \Rightarrow \cG$ maps objects in $\sC$ to morphisms in $\sD$.
+    \begin{itemize}
+      \item If $x$ is in $\sC$, then $\tau_x$ is in $\Hom(\cF x, \cG x)$.
+      \item The following diagram commutes for all $a,b \in \sC$.
+    \end{itemize}
+    \[ \SelectTips{cm}{}\xymatrix{
+        \cF a \ar[r]^{\tau_a} \ar[d]_{\cF f} & \cG a \ar[d]^{\cG f} \\ \cF b \ar[r]_{\tau_b} & \cG b
+    } \]
+  \end{definition}
+\end{frame}
+
+\begin{frame}{Categories}
+  \begin{definition}
+    For a natural transformation $\beta$ and functors $\mathcal F$ and $\mathcal L$,
+    \[ \SelectTips{cm}{}\xymatrix@C-1pc{
+      \sC \ar[0,2]^{\cF} & & \sD \ar@/^1.5pc/[0,2]^{\mathcal H} \ar@/_1.5pc/[0,2]_{\mathcal K} & \Downarrow\beta & \mathsf E \ar[0,2]^{\mathcal L} & & \mathsf F
+    } \]
+    define a transformation $\mathcal L \beta \mathcal F: \mathcal L \mathcal H \mathcal F \Rightarrow \mathcal L \mathcal K \mathcal F$ by $(\mathcal L \beta \mathcal F)_x = \mathcal L \beta_{\mathcal F_x}$. This is the \textbf{whiskered composite} of $\beta$ with $\mathcal L$ and $\mathcal F$.
+  \end{definition}
+\end{frame}
+
+\begin{frame}{Categories}
+  \begin{definition}[Monad]
+    \begin{itemize}
+      \item an endofunctor $\cT: \sC \to \sC$,
+      \item a natural transformation $\eta: 1_\sC \Rightarrow \cT$, and
+      \item a natural transformation $\mu: \cT^2 \Rightarrow \cT$,
+    \end{itemize}
+    \[ \SelectTips{cm}{}\xymatrix{
+    \cT^3 \ar@{=>}[r]^{\cT\mu} \ar@{=>}[d]_{\mu \cT} & \cT^2 \ar@{=>}[d]^\mu \\ \cT^2 \ar@{=>}[r]_\mu & \cT
+    } \qquad\qquad \SelectTips{cm}{}\xymatrix{
+    \cT \ar@{=>}[r]^{\eta \cT} \ar@{=>}[dr]_{1_\cT} & \cT^2 \ar@{=>}[d]^\mu & \cT \ar@{=>}[l]_{\cT\eta} \ar@{=>}[dl]^{1_\cT} \\ & \cT &
+    } \]
+  \end{definition}
+\end{frame}
+
+\begin{frame}{Functional Programming}
+  \center {\Large Functional Programming}
+\end{frame}
+
+\begin{frame}{Algorithms}
+  \center {\Large Algorithms}
+\end{frame}
+
+\begin{frame}{Algorithms}
+  \includegraphics[width=.75\textwidth]{DivisionAlgorithm.png}
+\end{frame}
+
+\begin{frame}{Algorithms}
+  Given a set $T$, denote the set of finite ordered lists of elements of $T$ as $[T]$. Let $\emptyset \in [T]$ denote the empty list.
+\end{frame}
+
+\begin{frame}{Algorithms}
+  \[ \scriptstyle \p: [k[\mathbf x]] \times \left( k[\mathbf x] \times k[\mathbf x] \right) \to k[\mathbf x] \times k[\mathbf x] \]
+  \[ \scriptstyle \p(G,(p,r)) = \begin{cases}\scriptstyle (p-\LT(p),r+\LT(p)) &\scriptstyle\text{if } G = \emptyset, \\ \scriptstyle (p-\frac{\LT(p)}{\LT(g_1)}g_1,r) &\scriptstyle\text{if } G \ne \emptyset \and \LT(g_1) \mid \LT(p), \\ \scriptstyle \p(G\setminus g_1,(p,r)) &\scriptstyle\text{if } G \ne \emptyset \and \LT(g_1) \nmid \LT(p). \end{cases} \]
+  \[ \scriptstyle \psi: [k[\mathbf x]] \times \left( k[\mathbf x] \times k[\mathbf x] \right) \to k[\mathbf x] \]
+  \[ \scriptstyle \psi(G,(p,r)) = \begin{cases} \scriptstyle r &\scriptstyle\text{if } p = 0, \\ \scriptstyle \psi(G,\p(G,(p,r))) &\scriptstyle\text{if } p \ne 0. \end{cases} \]
+  \[ \scriptstyle \overline f^{G} = \psi(G,(f,0)). \]
+\end{frame}
+
+\begin{frame}{Algorithms}
+  \includegraphics[width=.65\textwidth]{BuchbergersAlgorithm.png}
+\end{frame}
+
+\begin{frame}{Algorithms}
+  Notation
+  \begin{itemize}
+    \item<2-> $X + t$
+    \item<3-> $X + Y$
+    \item<4-> $y \times X$
+    \item<5-> $X \times Y$
+    \item<6-> For $x = (f,g) \in k[\mathbf x] \times k[\mathbf x]$, $Sx = S(f,g)$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Algorithms}
+  \[ \scriptstyle \p: [k[\mathbf x] \times k[\mathbf x]] \times [k[\mathbf x]] \to [k[\mathbf x]] \]
+  \[ \scriptstyle \p(X,G) = \begin{cases} \scriptstyle G &\scriptstyle\text{if } X = \emptyset, \\ \scriptstyle \p(X \setminus x_1,G) &\scriptstyle\text{if } X \ne \emptyset \and \overline{Sx_1}^{G} = 0, \\ \scriptstyle \scriptstyle \p\left(X \setminus x_1 + (\overline{Sx_1}^{G} \times G),G + \overline{Sx_1}^{G}\right) &\scriptstyle\text{if } X \ne \emptyset \and \overline{Sx_1}^{G} \ne 0. \end{cases} \]
+  \[ \scriptstyle \gb: [k[\mathbf x]] \to [k[\mathbf x]] \]
+  \[ \scriptstyle \gb(F) = \p(F \times F,F) \]
+\end{frame}
+
+\begin{frame}{Why?}
+  \center {\Large Why should we care?}
 \end{frame}
 
 \begin{frame}{End}

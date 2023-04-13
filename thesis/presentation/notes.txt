@@ -1,11 +1,11 @@
 Functional Programming:
-    pure functions
+    pure functions*
     first class citizens
-    higher order functions
-    folds
-    currying
-    recursion
+    currying*
+    example of map
+    higher order functions like folds
     lazy evaluation
+    recursion*
     Haskell Curry was Hilbert's student
     lambda calculus: no state
     turing machine: state
@@ -19,7 +19,7 @@ Types and Kinds:
     Nat
     only 1 sort
     statically typed
-    type level code is evaluated at compile time
+    type level code is evaluated at compile time <- maybe start here
     term level code is evaluated at runtime
     turning a runtime error into a compile time error is a win
 
@@ -45,7 +45,6 @@ polynomial-algorithms:
 
 Algorithms:
     stateless
-    the weirdness with = vs := vs == goes away.*
 
 Conclusion:
     Future options
