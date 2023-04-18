@@ -9,7 +9,6 @@
 module Coefficient ( Coefficient ) where
 
 import Data.Ratio ((%), numerator, denominator)
---import Control.DeepSeq (NFData, rnf)
 import qualified RingParams as RP
 import PolyParsers (Readable(..), ratFromString, ratToString)
 
@@ -31,9 +30,6 @@ type FFive  = Coefficient RP.FFive
 
 instance Show Q where
     show (Q r) = ratToString r
-
---instance NFData Field where
---    rnf (Q a) = rnf a
 
 instance Num Q where
     (Q r) + (Q s) = Q (r + s)
